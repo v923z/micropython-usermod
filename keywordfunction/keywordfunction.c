@@ -5,7 +5,7 @@
 STATIC mp_obj_t keywordfunction_add_ints(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
 
 	static const mp_arg_t allowed_args[] = {
-		{ MP_QSTR_a, MP_ARG_INT | MP_ARG_REQUIRED }, 
+		{ MP_QSTR_a, MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0} }, 
         { MP_QSTR_b, MP_ARG_INT, {.u_int = 0}},
         { MP_QSTR_return, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&mp_const_none_obj)} },
     };
