@@ -47,14 +47,14 @@ STATIC mp_obj_t specialclass_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
 
 STATIC mp_obj_t specialclass_binary_op(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs) {
     specialclass_myclass_obj_t *left_hand_side = MP_OBJ_TO_PTR(lhs);
-	specialclass_myclass_obj_t *right_hand_size = MP_OBJ_TO_PTR(rhs);
+	specialclass_myclass_obj_t *right_hand_side = MP_OBJ_TO_PTR(rhs);
 	switch (op) {
 		case MP_BINARY_OP_EQUAL:
-			return mp_obj_new_bool((left_hand_side->a == right_hand_size->a) && (left_hand_side->b == right_hand_size->b));
+			return mp_obj_new_bool((left_hand_side->a == right_hand_side->a) && (left_hand_side->b == right_hand_side->b));
 		case MP_BINARY_OP_ADD:
-			return create_new_myclass(left_hand_side->a + right_hand_size->a, left_hand_side->b + right_hand_size->b);
+			return create_new_myclass(left_hand_side->a + right_hand_side->a, left_hand_side->b + right_hand_side->b);
 		case MP_BINARY_OP_MULTIPLY:
-			return create_new_myclass(left_hand_side->a * right_hand_size->a, left_hand_side->b * right_hand_size->b);
+			return create_new_myclass(left_hand_side->a * right_hand_side->a, left_hand_side->b * right_hand_side->b);
 		default:
 			return MP_OBJ_NULL; // op not supported
 	}

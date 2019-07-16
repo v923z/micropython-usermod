@@ -34,7 +34,6 @@ STATIC mp_obj_t myclass_sum(mp_obj_t self_in) {
 
 MP_DEFINE_CONST_FUN_OBJ_1(myclass_sum_obj, myclass_sum);
 
-
 STATIC const mp_rom_map_elem_t myclass_locals_dict_table[] = {
 	{ MP_ROM_QSTR(MP_QSTR_mysum), MP_ROM_PTR(&myclass_sum_obj) },
 };
@@ -50,7 +49,6 @@ const mp_obj_type_t simpleclass_myclass_type = {
 };
 
 // Module functions
-
 STATIC mp_obj_t simpleclass_add(const mp_obj_t o_in) {
 	simpleclass_myclass_obj_t *class_instance = MP_OBJ_TO_PTR(o_in);
 	return mp_obj_new_int(class_instance->a + class_instance->b);

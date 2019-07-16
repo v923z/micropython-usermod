@@ -1,6 +1,5 @@
 #include "py/obj.h"
 #include "py/runtime.h"
-#include "py/builtin.h"
 
 STATIC mp_obj_t simplefunction_add_ints(mp_obj_t a_obj, mp_obj_t b_obj) {
     int a = mp_obj_get_int(a_obj);
