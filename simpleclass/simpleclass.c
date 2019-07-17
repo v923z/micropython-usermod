@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "py/runtime.h"
 #include "py/obj.h"
 
@@ -12,9 +13,7 @@ const mp_obj_type_t simpleclass_myclass_type;
 STATIC void myclass_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
 	(void)kind;
 	simpleclass_myclass_obj_t *self = MP_OBJ_TO_PTR(self_in);
-	mp_print_str(print, "myclass(");
-	printf("%d, ", self->a);
-	printf("%d)", self->b);
+	printf("myclass(%d, %d)", self->a, self->b);
 }
 
 STATIC mp_obj_t myclass_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {

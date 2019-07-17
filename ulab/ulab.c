@@ -11,6 +11,7 @@
 #define PRINT_MAX	10
 #define epsilon		1e-6
 
+#if 0
 STATIC mp_obj_array_t *array_new(char typecode, size_t n) {
     int typecode_size = mp_binary_get_size('@', typecode, NULL);
     mp_obj_array_t *o = m_new_obj(mp_obj_array_t);
@@ -715,3 +716,4 @@ const mp_obj_module_t ulab_user_cmodule = {
 
 
 MP_REGISTER_MODULE(MP_QSTR_ulab, ulab_user_cmodule, MODULE_ULAB_ENABLED);
+#endif
