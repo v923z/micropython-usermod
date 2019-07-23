@@ -42,11 +42,11 @@ STATIC mp_obj_t subitarray_getiter(mp_obj_t o_in, mp_obj_iter_buf_t *iter_buf) {
 STATIC mp_obj_t subitarray_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t value) {
 	subitarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
 	size_t idx = mp_obj_get_int(index);
-	printf("%lu, %lu", idx, self->len);
-    if (value == MP_OBJ_NULL) { // simply return the value at index, no assignment 
-		uint16_t *arr = self->elements;
-		printf("%d", arr[3]);
-		return MP_OBJ_NEW_SMALL_INT(arr[idx]);
+	if(self->len <= idx) {
+		mp_raise_msg(&mp_type_IndexError, "index is out of range");
+	}
+    if (value == MP_OBJ_SENTINEL) { // simply return the value at index, no assignment 		
+		return MP_OBJ_NEW_SMALL_INT(self->elements[idx]);
 	} else { // value was passed, replace the element at index
 		self->elements[idx] = mp_obj_get_int(value);
 	}
