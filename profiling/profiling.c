@@ -1,3 +1,13 @@
+/*
+ * This file is part of the micropython-usermod project, 
+ *
+ * https://github.com/v923z/micropython-usermod
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Zoltán Vörös
+*/
+    
 #include <math.h>
 #include <stdio.h>
 #include "py/obj.h"
@@ -59,4 +69,3 @@ const mp_obj_module_t profiling_user_cmodule = {
 };
 
 MP_REGISTER_MODULE(MP_QSTR_profiling, profiling_user_cmodule, MODULE_PROFILING_ENABLED);
-

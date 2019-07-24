@@ -1,3 +1,13 @@
+/*
+ * This file is part of the micropython-usermod project, 
+ *
+ * https://github.com/v923z/micropython-usermod
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Zoltán Vörös
+*/
+    
 #include <stdlib.h>
 #include "py/obj.h"
 #include "py/runtime.h"
@@ -13,26 +23,26 @@ const mp_obj_type_t iterable_array_type;
 mp_obj_t mp_obj_new_itarray_iterator(mp_obj_t , size_t , mp_obj_iter_buf_t *);
 
 STATIC void itarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
-	(void)kind;
-	itarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
-	printf("itarray: ");
-	for(uint16_t i=0; i < self->len; i++) {
-		printf("%d ", self->elements[i]);
-	}
-	printf("\n");
+    (void)kind;
+    itarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    printf("itarray: ");
+    for(uint16_t i=0; i < self->len; i++) {
+        printf("%d ", self->elements[i]);
+    }
+    printf("\n");
 }
 
 STATIC mp_obj_t itarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-	mp_arg_check_num(n_args, n_kw, 1, 1, true);
-	itarray_obj_t *self = m_new_obj(itarray_obj_t);
-	self->base.type = &iterable_array_type;
-	self->len = mp_obj_get_int(args[0]);
-	uint16_t *arr = malloc(self->len * sizeof(uint16_t));
-	for(uint16_t i=0; i < self->len; i++) {
-		arr[i] = i*i;
-	}
-	self->elements = arr;
-	return MP_OBJ_FROM_PTR(self);
+    mp_arg_check_num(n_args, n_kw, 1, 1, true);
+    itarray_obj_t *self = m_new_obj(itarray_obj_t);
+    self->base.type = &iterable_array_type;
+    self->len = mp_obj_get_int(args[0]);
+    uint16_t *arr = malloc(self->len * sizeof(uint16_t));
+    for(uint16_t i=0; i < self->len; i++) {
+        arr[i] = i*i;
+    }
+    self->elements = arr;
+    return MP_OBJ_FROM_PTR(self);
 }
 
 STATIC mp_obj_t itarray_getiter(mp_obj_t o_in, mp_obj_iter_buf_t *iter_buf) {
@@ -72,8 +82,8 @@ mp_obj_t itarray_iternext(mp_obj_t self_in) {
     mp_obj_itarray_it_t *self = MP_OBJ_TO_PTR(self_in);
     itarray_obj_t *itarray = MP_OBJ_TO_PTR(self->itarray);
     if (self->cur < itarray->len) {
-		// read the current value
-		uint16_t *arr = itarray->elements;
+        // read the current value
+        uint16_t *arr = itarray->elements;
         mp_obj_t o_out = MP_OBJ_NEW_SMALL_INT(arr[self->cur]);
         self->cur += 1;
         return o_out;

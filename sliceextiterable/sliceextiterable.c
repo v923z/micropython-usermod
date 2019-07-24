@@ -2,6 +2,7 @@
 #include "py/obj.h"
 #include "py/runtime.h"
 
+#if 0
 typedef struct _sliceextitarray_obj_t {
     mp_obj_base_t base;
     mp_fun_1_t iternext;
@@ -129,3 +130,4 @@ mp_obj_t mp_obj_new_sliceextitarray_iterator(mp_obj_t sliceitarray, size_t cur, 
     o->cur = cur;
     return MP_OBJ_FROM_PTR(o);
 }    
+#endif

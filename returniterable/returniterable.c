@@ -1,15 +1,25 @@
+/*
+ * This file is part of the micropython-usermod project, 
+ *
+ * https://github.com/v923z/micropython-usermod
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Zoltán Vörös
+*/
+    
 #include "py/obj.h"
 #include "py/runtime.h"
 
 STATIC mp_obj_t powers_iterable(mp_obj_t base, mp_obj_t exponent) {
-	int e = mp_obj_get_int(exponent);
-	mp_obj_t tuple[e+1];
-	int b = mp_obj_get_int(base), ba = 1;
-	for(int i=0; i <= e; i++) {
-		tuple[i] = mp_obj_new_int(ba);
-		ba *= b;
-	}
-	return mp_obj_new_tuple(e+1, tuple);
+    int e = mp_obj_get_int(exponent);
+    mp_obj_t tuple[e+1];
+    int b = mp_obj_get_int(base), ba = 1;
+    for(int i=0; i <= e; i++) {
+        tuple[i] = mp_obj_new_int(ba);
+        ba *= b;
+    }
+    return mp_obj_new_tuple(e+1, tuple);
 }
 
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(powers_iterable_obj, powers_iterable);

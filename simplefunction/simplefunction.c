@@ -1,3 +1,13 @@
+/*
+ * This file is part of the micropython-usermod project, 
+ *
+ * https://github.com/v923z/micropython-usermod
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Zoltán Vörös
+*/
+    
 #include "py/obj.h"
 #include "py/runtime.h"
 

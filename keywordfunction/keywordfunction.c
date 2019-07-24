@@ -1,3 +1,13 @@
+/*
+ * This file is part of the micropython-usermod project, 
+ *
+ * https://github.com/v923z/micropython-usermod
+ *
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Zoltán Vörös
+*/
+    
 #include <stdio.h>
 #include "py/obj.h"
 #include "py/runtime.h"
@@ -5,17 +15,17 @@
 
 STATIC mp_obj_t keywordfunction_add_ints(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
 
-	static const mp_arg_t allowed_args[] = {
-		{ MP_QSTR_a, MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0} }, 
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_a, MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0} }, 
         { MP_QSTR_b, MP_ARG_KW_ONLY | MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0} },
     };
 
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
-	int16_t a = args[0].u_int;
-	int16_t b = args[1].u_int;
-	printf("a = %d, b = %d\n", a, b);
-	return mp_obj_new_int(a + b);
+    int16_t a = args[0].u_int;
+    int16_t b = args[1].u_int;
+    printf("a = %d, b = %d\n", a, b);
+    return mp_obj_new_int(a + b);
 }
 
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(keywordfunction_add_ints_obj, 2, keywordfunction_add_ints);
