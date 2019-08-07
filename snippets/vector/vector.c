@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include "py/obj.h"
 #include "py/runtime.h"
-#include "extmod/utime_mphal.h"
 
 const mp_obj_type_t vector_type;
 
@@ -57,7 +56,7 @@ const mp_obj_type_t vector_type = {
 
 STATIC const mp_rom_map_elem_t vector_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_vector) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_vector), (mp_obj_t)&vector_type },	
+    { MP_OBJ_NEW_QSTR(MP_QSTR_vector), (mp_obj_t)&vector_type },
     { MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&vector_length_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(vector_module_globals, vector_module_globals_table);

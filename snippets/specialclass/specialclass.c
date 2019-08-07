@@ -50,7 +50,7 @@ STATIC mp_obj_t specialclass_unary_op(mp_unary_op_t op, mp_obj_t self_in) {
     switch (op) {
         case MP_UNARY_OP_BOOL: return mp_obj_new_bool((self->a > 0) && (self->b > 0));
         case MP_UNARY_OP_LEN: return mp_obj_new_int(2);
-        default: return MP_OBJ_NULL; // op not supported
+        default: return MP_OBJ_NULL; // operator not supported
     }
 }
 
@@ -65,7 +65,7 @@ STATIC mp_obj_t specialclass_binary_op(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t
         case MP_BINARY_OP_MULTIPLY:
             return create_new_myclass(left_hand_side->a * right_hand_side->a, left_hand_side->b * right_hand_side->b);
         default:
-            return MP_OBJ_NULL; // op not supported
+            return MP_OBJ_NULL; // operator not supported
     }
 }
 

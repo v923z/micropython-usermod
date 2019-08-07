@@ -55,7 +55,7 @@ STATIC mp_obj_t sliceitarray_getiter(mp_obj_t o_in, mp_obj_iter_buf_t *iter_buf)
 }
 
 STATIC mp_obj_t sliceitarray_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t value) {
-	sliceitarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    sliceitarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
     if (value == MP_OBJ_SENTINEL) { // simply return the values at index, no assignment
 
 #if MICROPY_PY_BUILTINS_SLICE
