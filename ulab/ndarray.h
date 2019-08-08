@@ -47,11 +47,11 @@ typedef struct _ndarray_obj_t {
 */
 
 void ndarray_print_row(const mp_print_t *, mp_obj_array_t *, size_t , size_t );
-void ulab_ndarray_print(const mp_print_t *, mp_obj_t , mp_print_kind_t );
+void ndarray_print(const mp_print_t *, mp_obj_t , mp_print_kind_t );
 void assign_elements(mp_obj_array_t *, mp_obj_t , uint8_t , size_t *);
 ndarray_obj_t *create_new_ndarray(size_t , size_t , uint8_t );
-mp_obj_t ulab_ndarray_copy(mp_obj_t );
-mp_obj_t ulab_ndarray_make_new(const mp_obj_type_t *, size_t , size_t , const mp_obj_t *);
+mp_obj_t ndarray_copy(mp_obj_t );
+mp_obj_t ndarray_make_new(const mp_obj_type_t *, size_t , size_t , const mp_obj_t *);
 
 mp_obj_t ndarray_shape(mp_obj_t );
 mp_obj_t ndarray_size(mp_obj_t , mp_obj_t );

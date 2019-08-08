@@ -61,7 +61,7 @@ void ndarray_print_row(const mp_print_t *print, mp_obj_array_t *data, size_t n0,
     mp_print_str(print, "]");
 }
 
-void ulab_ndarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+void ndarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
     ndarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_print_str(print, "ndarray(");	
@@ -104,7 +104,7 @@ ndarray_obj_t *create_new_ndarray(size_t m, size_t n, uint8_t typecode) {
     return ndarray;
 }
 
-mp_obj_t ulab_ndarray_copy(mp_obj_t self_in) {
+mp_obj_t ndarray_copy(mp_obj_t self_in) {
     // returns a verbatim (shape and typecode) copy of self_in
     ndarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
     ndarray_obj_t *out = create_new_ndarray(self->m, self->n, self->data->typecode);
@@ -113,7 +113,7 @@ mp_obj_t ulab_ndarray_copy(mp_obj_t self_in) {
     return MP_OBJ_FROM_PTR(out);
 }
 
-mp_obj_t ulab_ndarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+mp_obj_t ndarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
     mp_arg_check_num(n_args, n_kw, 1, 3, true);
     
     size_t len1, len2=0, i=0;

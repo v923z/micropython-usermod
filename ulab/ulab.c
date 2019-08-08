@@ -20,7 +20,9 @@
 #include "ndarray.h"
 #include "linalg.h"
 #include "vectorise.h"
+#include "numerical.h"
 
+#define ULAB__VERSION 1.0
 
 MP_DEFINE_CONST_FUN_OBJ_1(ndarray_shape_obj, ndarray_shape);
 MP_DEFINE_CONST_FUN_OBJ_2(ndarray_size_obj, ndarray_size);
@@ -28,6 +30,7 @@ MP_DEFINE_CONST_FUN_OBJ_1(ndarray_rawsize_obj, ndarray_rawsize);
 
 MP_DEFINE_CONST_FUN_OBJ_1(linalg_transpose_obj, linalg_transpose);
 MP_DEFINE_CONST_FUN_OBJ_2(linalg_reshape_obj, linalg_reshape);
+MP_DEFINE_CONST_FUN_OBJ_1(linalg_inv_obj, linalg_inv);
 
 MP_DEFINE_CONST_FUN_OBJ_1(vectorise_acos_obj, vectorise_acos);
 MP_DEFINE_CONST_FUN_OBJ_1(vectorise_acosh_obj, vectorise_acosh);
@@ -53,6 +56,10 @@ MP_DEFINE_CONST_FUN_OBJ_1(vectorise_sqrt_obj, vectorise_sqrt);
 MP_DEFINE_CONST_FUN_OBJ_1(vectorise_tan_obj, vectorise_tan);
 MP_DEFINE_CONST_FUN_OBJ_1(vectorise_tanh_obj, vectorise_tanh);
 
+MP_DEFINE_CONST_FUN_OBJ_3(numerical_linspace_obj, numerical_linspace);
+MP_DEFINE_CONST_FUN_OBJ_2(numerical_sum_obj, numerical_sum);
+
+
 STATIC const mp_rom_map_elem_t ulab_ndarray_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_shape), MP_ROM_PTR(&ndarray_shape_obj) },
     { MP_ROM_QSTR(MP_QSTR_size), MP_ROM_PTR(&ndarray_size_obj) },
@@ -74,16 +81,14 @@ STATIC MP_DEFINE_CONST_DICT(ulab_ndarray_locals_dict, ulab_ndarray_locals_dict_t
 const mp_obj_type_t ulab_ndarray_type = {
     { &mp_type_type },
     .name = MP_QSTR_ndarray,
-    .print = ulab_ndarray_print,
-    .make_new = ulab_ndarray_make_new,
-//    .unary_op = ulab_ndarray_unary_op,
+    .print = ndarray_print,
+    .make_new = ndarray_make_new,
+//    .unary_op = ndarray_unary_op,
 //    .subscr = ndarray_subscr,
 //    .getiter = ndarray_iterator_new,
-//    .binary_op = ulab_ndarray_binary_op,
+//    .binary_op = ndarray_binary_op,
     .locals_dict = (mp_obj_dict_t*)&ulab_ndarray_locals_dict,
 };
-
-MP_DEFINE_CONST_FUN_OBJ_1(linalg_inv_obj, linalg_inv);
 
 STATIC const mp_map_elem_t ulab_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_ulab) },
@@ -111,8 +116,9 @@ STATIC const mp_map_elem_t ulab_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_sinh), (mp_obj_t)&vectorise_sinh_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_sqrt), (mp_obj_t)&vectorise_sqrt_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_tan), (mp_obj_t)&vectorise_tan_obj },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_tanh), (mp_obj_t)&vectorise_tanh_obj }
-    //    { MP_OBJ_NEW_QSTR(MP_QSTR_sum), (mp_obj_t)&ulab_sum_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_tanh), (mp_obj_t)&vectorise_tanh_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_linspace), (mp_obj_t)&numerical_linspace_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_sum), (mp_obj_t)&numerical_sum_obj },
 };
 
 STATIC MP_DEFINE_CONST_DICT (
