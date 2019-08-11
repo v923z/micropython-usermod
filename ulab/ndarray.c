@@ -64,7 +64,7 @@ void ndarray_print_row(const mp_print_t *print, mp_obj_array_t *data, size_t n0,
 void ndarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
     ndarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    mp_print_str(print, "ndarray(");	
+    mp_print_str(print, "ndarray(");
     if((self->m == 1) || (self->n == 1)) {
         ndarray_print_row(print, self->data, 0, self->data->len);
     } else {
@@ -81,11 +81,11 @@ void ndarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t ki
     mp_print_str(print, ")\n");
 }
 
-void assign_elements(mp_obj_array_t *data, mp_obj_t iterable, uint8_t bytecode, size_t *idx) {
+void ndarray_assign_elements(mp_obj_array_t *data, mp_obj_t iterable, uint8_t typecode, size_t *idx) {
     // assigns a single row in the matrix
     mp_obj_t item;
     while ((item = mp_iternext(iterable)) != MP_OBJ_STOP_ITERATION) {
-        mp_binary_set_val_array(bytecode, data->items, (*idx)++, item);
+        mp_binary_set_val_array(typecode, data->items, (*idx)++, item);
     }
 }
 
@@ -154,19 +154,96 @@ mp_obj_t ndarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw,
     iterable1 = mp_getiter(args[0], &iter_buf1);
     i = 0;
     if(len2 == 0) { // the first argument is a single iterable
-        assign_elements(self->data, iterable1, typecode, &i);
+        ndarray_assign_elements(self->data, iterable1, typecode, &i);
     } else {
         mp_obj_iter_buf_t iter_buf2;
         mp_obj_t iterable2; 
 
         while ((item1 = mp_iternext(iterable1)) != MP_OBJ_STOP_ITERATION) {
             iterable2 = mp_getiter(item1, &iter_buf2);
-            assign_elements(self->data, iterable2, typecode, &i);
+            ndarray_assign_elements(self->data, iterable2, typecode, &i);
         }
     }
     return MP_OBJ_FROM_PTR(self);
 }
 
+mp_obj_t ndarray_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t value) {
+    // NOTE: this will work only on the flattened array!
+    ndarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    if (value == MP_OBJ_SENTINEL) { 
+        // simply return the values at index, no assignment
+#if MICROPY_PY_BUILTINS_SLICE
+        if (MP_OBJ_IS_TYPE(index, &mp_type_slice)) {
+            mp_bound_slice_t slice;
+            mp_seq_get_fast_slice_indexes(self->data->len, index, &slice);
+            // TODO: this won't work with index reversion!!!
+            size_t len = (slice.stop - slice.start) / slice.step;
+            ndarray_obj_t *out = create_new_ndarray(1, len, self->data->typecode);
+            int _sizeof = mp_binary_get_size('@', self->data->typecode, NULL);
+            uint8_t *indata = (uint8_t *)self->data->items;
+            uint8_t *outdata = (uint8_t *)out->data->items;
+            for(size_t i=0; i < len; i++) {
+                memcpy(outdata+(i*_sizeof), indata+(slice.start+i*slice.step)*_sizeof, _sizeof);
+            }
+            return MP_OBJ_FROM_PTR(out);
+        }
+#endif
+        // we have a single index, return a single number
+        size_t idx = mp_obj_get_int(index);
+        switch(self->data->typecode) {
+            case NDARRAY_UINT8:
+                return MP_OBJ_NEW_SMALL_INT(((uint8_t *)self->data->items)[idx]);
+            case NDARRAY_INT8:
+                return MP_OBJ_NEW_SMALL_INT(((int8_t *)self->data->items)[idx]);
+            case NDARRAY_UINT16:
+                return MP_OBJ_NEW_SMALL_INT(((uint16_t *)self->data->items)[idx]);
+            case NDARRAY_INT16:
+                return MP_OBJ_NEW_SMALL_INT(((int16_t *)self->data->items)[idx]);
+            case NDARRAY_FLOAT:
+                return mp_obj_new_float(((float_t *)self->data->items)[idx]);
+        }
+    } else { // do not deal with assignment, bail out
+        mp_raise_NotImplementedError("subcript assignment is not implemented for ndarrays");
+    }
+    return mp_const_none;
+}
+
+// itarray iterator
+
+mp_obj_t ndarray_getiter(mp_obj_t o_in, mp_obj_iter_buf_t *iter_buf) {
+    return mp_obj_new_ndarray_iterator(o_in, 0, iter_buf);
+}
+
+typedef struct _mp_obj_ndarray_it_t {
+    mp_obj_base_t base;
+    mp_fun_1_t iternext;
+    mp_obj_t ndarray;
+    size_t cur;
+} mp_obj_ndarray_it_t;
+
+mp_obj_t ndarray_iternext(mp_obj_t self_in) {
+    mp_obj_ndarray_it_t *self = MP_OBJ_TO_PTR(self_in);
+    ndarray_obj_t *ndarray = MP_OBJ_TO_PTR(self->ndarray);
+    if (self->cur < ndarray->data->len) {
+        mp_obj_t value;
+        // read the current value
+        value = mp_binary_get_val_array(ndarray->data->typecode, ndarray->data->items, self->cur);
+        self->cur += 1;
+        return value;
+    } else {
+        return MP_OBJ_STOP_ITERATION;
+    }
+}
+
+mp_obj_t mp_obj_new_ndarray_iterator(mp_obj_t ndarray, size_t cur, mp_obj_iter_buf_t *iter_buf) {
+    assert(sizeof(mp_obj_ndarray_it_t) <= sizeof(mp_obj_iter_buf_t));
+    mp_obj_ndarray_it_t *o = (mp_obj_ndarray_it_t*)iter_buf;
+    o->base.type = &mp_type_polymorph_iter;
+    o->iternext = ndarray_iternext;
+    o->ndarray = ndarray;
+    o->cur = cur;
+    return MP_OBJ_FROM_PTR(o);
+}
 
 mp_obj_t ndarray_shape(mp_obj_t self_in) {
     ndarray_obj_t *self = MP_OBJ_TO_PTR(self_in);

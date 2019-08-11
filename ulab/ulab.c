@@ -60,6 +60,10 @@ MP_DEFINE_CONST_FUN_OBJ_3(numerical_linspace_obj, numerical_linspace);
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(numerical_sum_obj, 1, numerical_sum);
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(numerical_mean_obj, 1, numerical_mean);
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(numerical_std_obj, 1, numerical_std);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(numerical_min_obj, 1, numerical_min);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(numerical_max_obj, 1, numerical_max);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(numerical_argmin_obj, 1, numerical_argmin);
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(numerical_argmax_obj, 1, numerical_argmax);
 
 STATIC const mp_rom_map_elem_t ulab_ndarray_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_shape), MP_ROM_PTR(&ndarray_shape_obj) },
@@ -84,9 +88,9 @@ const mp_obj_type_t ulab_ndarray_type = {
     .name = MP_QSTR_ndarray,
     .print = ndarray_print,
     .make_new = ndarray_make_new,
+    .subscr = ndarray_subscr,
+    .getiter = ndarray_getiter,
 //    .unary_op = ndarray_unary_op,
-//    .subscr = ndarray_subscr,
-//    .getiter = ndarray_iterator_new,
 //    .binary_op = ndarray_binary_op,
     .locals_dict = (mp_obj_dict_t*)&ulab_ndarray_locals_dict,
 };
@@ -122,6 +126,10 @@ STATIC const mp_map_elem_t ulab_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_sum), (mp_obj_t)&numerical_sum_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_mean), (mp_obj_t)&numerical_mean_obj },
     { MP_OBJ_NEW_QSTR(MP_QSTR_std), (mp_obj_t)&numerical_std_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_min), (mp_obj_t)&numerical_min_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_max), (mp_obj_t)&numerical_max_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_argmin), (mp_obj_t)&numerical_argmin_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_argmax), (mp_obj_t)&numerical_argmax_obj },
 };
 
 STATIC MP_DEFINE_CONST_DICT (

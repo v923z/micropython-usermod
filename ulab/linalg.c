@@ -65,7 +65,7 @@ mp_obj_t linalg_reshape(mp_obj_t self_in, mp_obj_t shape) {
     n = mp_obj_get_int(item);
     if(m*n != self->m*self->n) {
         // TODO: the proper error message would be "cannot reshape array of size %d into shape (%d, %d)"
-        mp_raise_ValueError("cannot reshape array");
+        mp_raise_ValueError("cannot reshape array (incompatible input/output shape)");
     }
     self->m = m;
     self->n = n;
@@ -85,6 +85,7 @@ ndarray_obj_t *invert_matrix(mp_obj_array_t *data, size_t N) {
     float elemf;
     for(size_t m=0; m < N; m++) { // rows first
         for(size_t n=0; n < N; n++) { // columns next
+            // this could, perhaps, be done in single line...
             elem = mp_binary_get_val_array(data->typecode, data->items, m*N+n);
             elemf = (float)mp_obj_get_float(elem);
             memcpy(&c[m*N+n], &elemf, sizeof(float));
