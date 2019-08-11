@@ -36,6 +36,20 @@ STATIC mp_obj_array_t *array_new(char typecode, size_t n) {
     return o;
 }
 
+float ndarray_get_float_value(void *data, uint8_t typecode, size_t index) {
+    if(typecode == NDARRAY_UINT8) {
+        return (float)((uint8_t *)data)[index];
+    } else if(typecode == NDARRAY_INT8) {
+        return (float)((int8_t *)data)[index];
+    } else if(typecode == NDARRAY_UINT16) {
+        return (float)((uint16_t *)data)[index];
+    } else if(typecode == NDARRAY_INT16) {
+        return (float)((int16_t *)data)[index];
+    } else {
+        return (float)((float_t *)data)[index];
+    }
+}
+
 void ndarray_print_row(const mp_print_t *print, mp_obj_array_t *data, size_t n0, size_t n) {
     mp_print_str(print, "[");
     size_t i;

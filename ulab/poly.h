@@ -11,4 +11,6 @@
 #ifndef _POLY_
 #define _POLY_
 
+mp_obj_t poly_polyval(mp_obj_t , mp_obj_t );
+
 #endif

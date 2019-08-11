@@ -37,24 +37,29 @@ mp_obj_t vectorise_generic_vector(mp_obj_t o_in, mp_float_t (*f)(mp_float_t)) {
     if(mp_obj_is_float(o_in) || mp_obj_is_integer(o_in)) {
             return mp_obj_new_float(f(mp_obj_get_float(o_in)));
     }
-/*    if(MP_OBJ_IS_TYPE(o_in, &ulab_ndarray_type)) {
+    mp_float_t x;
+    if(MP_OBJ_IS_TYPE(o_in, &ulab_ndarray_type)) {
         ndarray_obj_t *o = MP_OBJ_TO_PTR(o_in);
-        ndarray_obj_t *array = create_new_ndarray(o->m, o->n, NDARRAY_FLOAT);
-    }*/
-    if(MP_OBJ_IS_TYPE(o_in, &mp_type_tuple) || MP_OBJ_IS_TYPE(o_in, &mp_type_list) || 
+        ndarray_obj_t *out = create_new_ndarray(o->m, o->n, NDARRAY_FLOAT);
+        float *datain = (float *)o->data->items;
+        float *dataout = (float *)out->data->items;
+        for(size_t i=0; i < o->data->len; i++) {
+            dataout[i] = f(datain[i]);
+        }
+        return MP_OBJ_FROM_PTR(out);
+    } else if(MP_OBJ_IS_TYPE(o_in, &mp_type_tuple) || MP_OBJ_IS_TYPE(o_in, &mp_type_list) || 
         MP_OBJ_IS_TYPE(o_in, &mp_type_range)) {
             mp_obj_array_t *o = MP_OBJ_TO_PTR(o_in);
-            ndarray_obj_t *nd_array = create_new_ndarray(1, o->len, NDARRAY_FLOAT);
+            ndarray_obj_t *out = create_new_ndarray(1, o->len, NDARRAY_FLOAT);
+            float *dataout = (float *)out->data->items;
             mp_obj_iter_buf_t iter_buf;
             mp_obj_t item, iterable = mp_getiter(o_in, &iter_buf);
             size_t i=0;
-            mp_float_t x, y;
             while ((item = mp_iternext(iterable)) != MP_OBJ_STOP_ITERATION) {
                 x = mp_obj_get_float(item);
-                y = f(x);
-                mp_binary_set_val_array('f', nd_array->data->items, i++, mp_obj_new_float(y));
+                dataout[i++] = f(x);
             }
-        return MP_OBJ_FROM_PTR(nd_array);
+        return MP_OBJ_FROM_PTR(out);
     }
     return mp_const_none;
 }
