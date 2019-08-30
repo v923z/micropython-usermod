@@ -15,27 +15,6 @@
 #include "mphalport.h"  // needed for mp_hal_ticks_cpu()
 #include "py/builtin.h" // needed for mp_micropython_mem_info()
 
-/*
-STATIC mp_obj_t measure_cpu(mp_obj_t _x, mp_obj_t _y, mp_obj_t _z) {
-	// first, measure the time taken up by the assignments
-	mp_uint_t start = mp_hal_ticks_cpu();
-	float x = mp_obj_get_float(_x);
-	float y = mp_obj_get_float(_y);
-	float z = mp_obj_get_float(_z);
-	mp_uint_t stop = mp_hal_ticks_cpu();
-	printf("time elapsed: %ld CPU cycles\n", stop - start);
-	mp_micropython_mem_info(0, NULL);
-
-	// measure the time used by the square root
-	start = mp_hal_ticks_cpu();
-	float hypo = sqrtf(x*x + y*y + z*z);
-	stop = mp_hal_ticks_cpu();
-	printf("time elapsed: %ld CPU cycles\n", stop - start);	
-	mp_micropython_mem_info(0, NULL);
-	return mp_obj_new_float(hypo);
-}*/
-
-
 STATIC mp_obj_t measure_cpu(mp_obj_t _x, mp_obj_t _y, mp_obj_t _z) {
     size_t start, middle, end;
     start = m_get_current_bytes_allocated();
