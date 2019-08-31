@@ -11,13 +11,13 @@
 {% block input scoped%}
 
 {%- if '%%ccode' in cell.source.strip().split('\n')[0] -%}
-{{ cell.source.strip().split('\n')[0].split()[1:] }}
-{{"\n.. literalinclude:: %s\n"%cell.source.strip().split('\n')[0].split()[-1] -}}
-{{":language: c" | indent}}
-{{":linenos:\n" | indent}}
-{%- elif '%%writefile' in cell.source.strip().split('\n')[0] -%}
+{{ 'https://github.com/v923z/micropython-usermod/tree/master/snippets' + cell.source.strip().split('\n')[0].split()[-1] }}
+
+.. code::
+        
+{{ '\n\t'.join( cell.source.strip().split('\n')[1:] ) }}
 {%- else -%}
-{{".. code:: "-}}
+.. code::
 {%- if 'magics_language' in cell.metadata  -%}
     {{ cell.metadata.magics_language}}
 {%- elif 'pygments_lexer' in nb.metadata.get('language_info', {}) -%}
