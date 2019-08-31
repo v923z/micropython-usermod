@@ -55,3 +55,7 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 master_doc = 'index'
+
+author=u'Zoltán Vörös'
+copyright=author
+language='en'
