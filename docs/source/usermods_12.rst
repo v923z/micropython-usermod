@@ -12,7 +12,7 @@ achieve in the first place?
 Requirements
 ------------
 
-Recently, I have run into a limitations with the micropython
+Recently, I have run into some limitations with the micropython
 interpreter. These difficulties were related to both speed, and RAM.
 Therefore, I wanted to have something that can perform common
 mathematical calculations in a pythonic way, with little burden on the
@@ -81,3 +81,7 @@ should evaluate to ``ndarray([12, 23, 34, 45])``.
 
 And this is, how ``ulab`` was born. But that is another story, for
 another day https://github.com/v923z/micropython-ulab/.
+
+.. code::
+
+    
