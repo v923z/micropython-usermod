@@ -1,112 +1,80 @@
 
-micropython internals
-=====================
+The micropython code base
+=========================
 
-Before exploring the exciting problem of micropython function
-implementation in C, we should first understand how python objects are
-stored and treated at the firmware level.
+Since we are going to test our code mainly on the unix port, we set that
+as the current working directory.
 
-Object representation
----------------------
+.. code:: bash
 
-Whenever you write
+    !cd ../../micropython/ports/unix/
+The micropython codebase itself is set up a rather modular way. Provided
+you cloned the micropython repository with
 
-.. code:: python
+.. code:: bash
 
-   >>> a = 1
-   >>> b = 2
-   >>> a + b
+    !git clone https://github.com/micropython/micropython.git 
+onto your computer, and you look at the top-level directories, you will
+see something like this:
 
-on the python console, first the two new variables, ``a``, and ``b`` are
-created and a reference to them is stored in memory. Then the value of
-1, and 2, respectively, will be associated with these variables. In the
-last line, when the sum is to be computed, the interpreter somehow has
-to figure out, how to decipher the values stored in ``a``, and ``b``: in
-the RAM, these two variables are just bytes, but depending on the type
-of the variable, different meanings will be associated with these bytes.
-Since the type cannot be known at compile time, there must be a
-mechanism for keeping stock of this extra piece of information. This is,
-where ``mp_obj_t``, defined in ``obj.h``, takes centre stage.
+.. code:: bash
 
-If you cast a cursory glance at any of the C functions that are exposed
-to the python interpreter, you will always see something like this
+    !ls ../../../micropython/
+.. parsed-literal::
 
-.. code:: c
+    ACKNOWLEDGEMENTS    docs      lib	 pic16bit   teensy   zephyr
+    bare-arm	    drivers   LICENSE	 py	    tests
+    cc3200		    esp8266   logo	 qemu-arm   tools
+    CODECONVENTIONS.md  examples  minimal	 README.md  unix
+    CONTRIBUTING.md     extmod    mpy-cross  stmhal     windows
 
-   mp_obj_t some_function(mp_obj_t some_variable, ...) {
-       // some_variable is converted to fundamental C types (bytes, ints, floats, pointers, structures, etc.)
-       ...
-   }
+Out of all the directoties, at least two are of particular interest.
+Namely, ``/py/``, where the python interpreter is implemented, and
+``/ports/``, which contains the hardware-specific files. All questions
+pertaining to programming micropython in C can be answered by browsing
+these two directories, and perusing the relevant files therein.
 
-Variables of type ``mp_obj_t`` are passed to the function, and the
-function returns the results as an object of type ``mp_obj_t``. So, what
-is all this fuss this about? Basically, ``mp_obj_t`` is nothing but an
-8-byte segment of the memory, where all concrete objects are encoded.
-There can be various object encodings. E.g., in the ``A`` encoding,
-integers are those objects, whose rightmost bit in this 8-byte
-representation is set to 1, and the value of the integer can then be
-retrieved by shifting these 8 bytes by one to the right, and then
-applying a mask. In the ``B`` encoding, the variable is an integer, if
-its value is 1, when ANDed with 3, and the value will be returned, if we
-shift the 8 bytes by two to the right.
+User modules in micropython
+---------------------------
 
-Type checking
--------------
+Beginning with the 1.10 version of micropython, it became quite simple
+to add a user-defined C module to the firmware. You simply drop two or
+three files in an arbitrary directory, and pass two compiler flags to
+``make`` like so:
 
-Fortunately, we do not have to be concerned with the representations and
-the shifts, because there are pre-defined macros for such operations.
-So, if we want to find out, whether ``some_variable`` is an integer, we
-can inspect the value of the Boolean
+.. code:: bash
 
-.. code:: c
+    !make USER_C_MODULES=../../../user_modules CFLAGS_EXTRA=-DMODULE_EXAMPLE_ENABLED=1 all
+Here, the ``USER_C_MODULES`` variable is the location (relative to the
+location of ``make``) of your files, while ``CFLAGS_EXTRA`` defines the
+flag for your particular module. This is relevant, if you have many
+modules, but you want to include only some of them.
 
-   MP_OBJ_IS_SMALL_INT(some_variable)
+Alternatively, you can set the module flags in ``mpconfigport.h`` (to be
+found in the port’s root folder, for which you are compiling) as
 
-The integer value stored in ``some_variable`` can then be gotten by
-calling ``MP_OBJ_SMALL_INT_VALUE``:
+.. code:: make
 
-.. code:: c
+   #define MODULE_SIMPLEFUNCTION_ENABLED (1)
+   #define MODULE_SIMPLECLASS_ENABLED (1)
+   #define MODULE_SPECIALCLASS_ENABLED (1)
+   #define MODULE_KEYWORDFUNCTION_ENABLED (1)
+   #define MODULE_CONSUMEITERABLE_ENABLED (1)
+   #define MODULE_VECTOR_ENABLED (1)
+   #define MODULE_RETURNITERABLE_ENABLED (1)
+   #define MODULE_PROFILING_ENABLED (1)
+   #define MODULE_MAKEITERABLE_ENABLED (1)
+   #define MODULE_SUBSCRIPTITERABLE_ENABLED (1)
+   #define MODULE_SLICEITERABLE_ENABLED (1)
+   #define MODULE_VARARG_ENABLED (1)
 
-   int value_of_some_variable = MP_OBJ_SMALL_INT_VALUE(some_variable);
+and then call ``make`` without the ``CFLAGS_EXTRA`` flag:
 
-These decoding steps take place somewhere in the body of
-``some_function``, before we start working with native C types. Once we
-are done with the calculations, we have to return an ``mp_obj_t``, so
-that the interpreter can handle the results (e.g., show it on the
-console, or pipe it to the next instruction). In this case, the encoding
-is done by calling
+.. code:: bash
 
-.. code:: c
-
-   mp_obj_new_int(value_of_some_variable)
-
-More generic types can be treated with the macro ``MP_OBJ_IS_TYPE``,
-which takes the object as the first, and a pointer to the type as the
-second argument. Now, if you want to find out, whether ``some_variable``
-is a tuple, you could apply the ``MP_OBJ_IS_TYPE`` macro,
-
-.. code:: c
-
-   MP_OBJ_IS_TYPE(some_variable, &mp_type_tuple)
-
-While the available types can be found in ``obj.h``, they all follow the
-``mp_type_`` + python type pattern, so in most cases, it is not even
-necessary to look them up. We should also note that it is also possible
-to define new types. When done properly, ``MP_OBJ_IS_TYPE`` can be
-called on objects with this new type, i.e.,
-
-.. code:: c
-
-   MP_OBJ_IS_TYPE(myobject, &my_type)
-
-will just work. We return to this question later.
-
-python constants
-----------------
-
-At this point, we should mention that python constants,\ ``True`` (in C
-``mp_const_true``), ``False`` (in C ``mp_const_false``), ``None`` (in C
-``mp_const_none``) and the like are also defined in ``obj.h``. These are
-objects of type ``mp_obj_t``, as almost anything else, so you can return
-them from a function, when the function is meant to return directly to
-the interpreter.
+    !make USER_C_MODULES=../../../user_modules all
+This separation of the user code from the micropython code base is
+definitely a convenience, because it is much easier to keep track of
+changes, and also because you can’t possibly screw up micropython
+itself: you can also go back to a working piece of firmware by dropping
+the ``USER_C_MODULES`` argument of ``make``.

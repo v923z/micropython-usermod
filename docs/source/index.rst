@@ -11,7 +11,6 @@ Welcome to micropython-usermod's documentation!
    :caption: Content:
 
    usermods_01
-   usermods_02
    usermods_03
    usermods_04
    usermods_05
@@ -22,6 +21,8 @@ Welcome to micropython-usermod's documentation!
    usermods_10
    usermods_11
    usermods_12
+   usermods_13
+   usermods_14
 
 Indices and tables
 ==================

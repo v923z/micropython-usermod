@@ -13,21 +13,35 @@
 {%- if '%%ccode' in cell.source.strip().split('\n')[0] -%}
 {{ 'https://github.com/v923z/micropython-usermod/tree/master/snippets' + cell.source.strip().split('\n')[0].split()[-1] }}
 
-.. code::
+.. code:: cpp
         
-{{ '\n\t'.join( cell.source.strip().split('\n')[1:] ) }}
+{{ '\n'.join( cell.source.strip().split('\n')[1:] ) | indent }}
+
+{%- elif '%%makefile' in cell.source.strip().split('\n')[0] -%}
+{{ 'https://github.com/v923z/micropython-usermod/tree/master/snippets/' + cell.source.strip().split('\n')[0].split()[-1].split('/')[1] + '/micropython.mk' }}
+
+.. code:: make
+        
+{{ '\n'.join( cell.source.strip().split('\n')[1:] ) | indent }}
+
+{%- elif cell.source.strip().split('\n')[0].startswith('!') -%}
+
+.. code:: bash
+
+{{ cell.source | indent }}
+
 {%- else -%}
-.. code::
 {%- if 'magics_language' in cell.metadata  -%}
     {{ cell.metadata.magics_language}}
 {%- elif 'pygments_lexer' in nb.metadata.get('language_info', {}) -%}
     {{ nb.metadata.language_info.pygments_lexer }}
 {%- elif 'name' in nb.metadata.get('language_info', {}) -%}
     {{ nb.metadata.language_info.name }}
-{%- endif %}
-
+{%- endif -%}
+.. code ::
+        
 {{ cell.source | indent}}
-{% endif -%}
+{%- endif -%}
 {% endblock input %}
 
 {% block error %}
@@ -47,9 +61,12 @@
 {% endblock execute_result %}
 
 {% block stream %}
+{%- if '%%ccode' in cell.source.strip().split('\n')[0] -%}
+{%- else -%}
 .. parsed-literal::
 
 {{ output.text | indent }}
+{%- endif -%}
 {% endblock stream %}
 
 {% block data_svg %}

@@ -1,87 +1,118 @@
 
-Outline of a math library
-=========================
+Working with larger modules
+===========================
 
-As I indicated at the very beginning, my main motivation for writing
-this document was that I wanted to have a reasonable programming manual
-for the development of a math library. Since I couldn’t find any, I have
-turned the problem around, and written up, what I have learnt by
-developing the library. But the question is, what this library should
-achieve in the first place?
+Once you add more and more functionality and functions to your module,
+it will become unmanageably, and it might make more sense to split the
+module into smaller components. We are going to hack our very first
+module, ``simplefunction``, and factor out the function in it.
 
-Requirements
-------------
+Since we will want to refer to our functions in the module definition,
+we have to declare them in a header file. Let us call this file
+``helper.h``. The functions declared therein operate on ``micropython``
+types, so do not forget to include ``py/obj.h``, and possibly
+``py/runtime.h``!
 
-Recently, I have run into some limitations with the micropython
-interpreter. These difficulties were related to both speed, and RAM.
-Therefore, I wanted to have something that can perform common
-mathematical calculations in a pythonic way, with little burden on the
-RAM, and possibly fast. On PCs, such a library is called ``numpy``, and
-it felt only natural to me to implement those aspects of ``numpy`` that
-would find an applications in the context of data acquisition of
-moderate volume: after all, no matter what, the microcontroller is not
-going to produce or collect huge amounts of data, but it might still be
-useful to process these data within the constraints of the
-microcontroller. Due to the nature of the data that would be dealt with,
-one can work with a very limited subset of ``numpy``.
+https://github.com/v923z/micropython-usermod/tree/master/snippets/largemodule/helper.h
 
-Keeping these considerations in mind, I set my goals as follows:
+.. code:: cpp
+        
+    
+    #include "py/obj.h"
+    #include "py/runtime.h"
+    
+    mp_obj_t largemodule_add_ints(mp_obj_t , mp_obj_t );
+    mp_obj_t largemodule_subtract_ints(mp_obj_t , mp_obj_t );
 
--  One should be able to vectorise standard mathematical functions,
-   while these functions should still work for scalars, so
+Next, in ``helper.c``, we have to implement the functions. ``helper.c``
+should also contain the declarations, i.e., ``header.h`` has to be
+included.
 
-.. code:: python
+https://github.com/v923z/micropython-usermod/tree/master/snippets/largemodule/helper.c
 
-   a = 1.0
-   sin(a)
+.. code:: cpp
+        
+    
+    #include "helper.h"
+    
+    mp_obj_t largemodule_add_ints(mp_obj_t a_obj, mp_obj_t b_obj) {
+        int a = mp_obj_get_int(a_obj);
+        int b = mp_obj_get_int(b_obj);
+        return mp_obj_new_int(a + b);
+    }
+    
+    mp_obj_t largemodule_subtract_ints(mp_obj_t a_obj, mp_obj_t b_obj) {
+        int a = mp_obj_get_int(a_obj);
+        int b = mp_obj_get_int(b_obj);
+        return mp_obj_new_int(a - b);
+    }
 
-and
+Finally, in the module implementation, we include ``helper.h``, and
+create the function objects with ``MP_DEFINE_CONST_FUN_OBJ_2``, and its
+relatives. The rest of the code is equivalent to ``simplefunction.c``,
+with the only exception of the module name.
 
-.. code:: python
+https://github.com/v923z/micropython-usermod/tree/master/snippets/largemodule/largemodule.c
 
-   a = [1.0, 2.0, 3.0]
-   sin(a)
+.. code:: cpp
+        
+    
+    #include "py/obj.h"
+    #include "py/runtime.h"
+    #include "helper.h"
+    
+    
+    STATIC MP_DEFINE_CONST_FUN_OBJ_2(largemodule_add_ints_obj, largemodule_add_ints);
+    STATIC MP_DEFINE_CONST_FUN_OBJ_2(largemodule_subtract_ints_obj, largemodule_subtract_ints);
+    
+    STATIC const mp_rom_map_elem_t largemodule_module_globals_table[] = {
+        { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_largemodule) },
+        { MP_ROM_QSTR(MP_QSTR_add_ints), MP_ROM_PTR(&largemodule_add_ints_obj) },
+        { MP_ROM_QSTR(MP_QSTR_subtract_ints), MP_ROM_PTR(&largemodule_subtract_ints_obj) },    
+    };
+    STATIC MP_DEFINE_CONST_DICT(largemodule_module_globals, largemodule_module_globals_table);
+    
+    const mp_obj_module_t largemodule_user_cmodule = {
+        .base = { &mp_type_module },
+        .globals = (mp_obj_dict_t*)&largemodule_module_globals,
+    };
+    
+    MP_REGISTER_MODULE(MP_QSTR_largemodule, largemodule_user_cmodule, MODULE_LARGEMODULE_ENABLED);
 
-should both be valid expressions.
+Now, since we have multiple files in our module, we have to change the
+``makefile`` accordingly, and before linking, we have to compile both
+``helper.c``, and ``largemodule.c``, thus, we add
+``$(USERMODULES_DIR)/helper.c``, *and*
+``$(USERMODULES_DIR)/largemodule.c`` to ``SRC_USERMOD``.
 
--  There should be a binary container, (``ndarray``) for numbers that
-   are results of vectorised operations, and one should be able to
-   initialise a container by passing arbitrary ``iterables`` to a
-   constructor (see ``sin([1, 2, 3])`` above).
+https://github.com/v923z/micropython-usermod/tree/master/snippets/largemodule/micropython.mk
 
--  The array should be iterable, so that we can turn it into lists,
-   tuples, etc.
+.. code:: make
+        
+    
+    USERMODULES_DIR := $(USERMOD_DIR)
+    
+    # Add all C files to SRC_USERMOD.
+    SRC_USERMOD += $(USERMODULES_DIR)/helper.c
+    SRC_USERMOD += $(USERMODULES_DIR)/largemodule.c
+    
+    # We can add our module folder to include paths if needed
+    # This is not actually needed in this example.
+    CFLAGS_USERMOD += -I$(USERMODULES_DIR)
+.. code:: bash
 
--  The relevant binary operations should work on arrays as in ``numpy``,
-   that is, e.g.,
+    !make USER_C_MODULES=../../../usermod/snippets/ all
+.. code ::
+        
+    %%micropython
+    
+    import largemodule
+    
+    print(largemodule.add_ints(1, 2))
+    print(largemodule.subtract_ints(1, 2))
+.. parsed-literal::
 
-.. code:: python
-
-   >>> a = ndarray([1, 2, 3, 4])
-   >>> (a + 1) + a*10
-
-should evaluate to ``ndarray([12, 23, 34, 45])``.
-
--  2D arrays (matrices) could be useful (see below), thus, the
-   above-mentioned container should be able to store its ``shape``.
-
--  Having matrices, it is only natural to implement standard matrix
-   operations (inversion, transposition etc.)
-
--  These numerical arrays and matrices should have a reasonable visual
-   representation (pretty printing)
-
--  With the help of matrices, one can also think of polynomial fits to
-   measurement data
-
--  There should be an FFT routine that can work with linear arrays. I do
-   not think that 2D transforms would be very useful for data that come
-   from the ADC of the microcontroller, but being able to extract
-   frequency components of 1D signals would be an asset.
-
-And this is, how ``ulab`` was born. But that is another story, for
-another day https://github.com/v923z/micropython-ulab/.
-
-.. code::
-
+    3
+    -1
+    
     

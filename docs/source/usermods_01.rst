@@ -70,3 +70,23 @@ primitive, but for this very reason, they demonstrate a single idea
 without distraction. Second, having a piece of parallel python code is
 useful insofar as it tells us what to expect, and it also encourages us
 to implement the C version such that it results in *pythonic* functions.
+
+Code blocks
+-----------
+
+You’ll encounter various kinds of code blocks in this document. These
+have various scopes, which are listed here:
+
+-  if a code block begins with an exclamation mark, the content is meant
+   to be executed on the command line.
+
+-  if the code block looks like a piece of python code, it should be run
+   in a python interpreter.
+
+-  if the heading of the code block is ``%%micropython``, then, well,
+   you guessed it right, the content should be passed to the micropython
+   interpreter of your choice of port.
+
+-  other code segments can be C code, or a makefile. These should be
+   easy to recognise, because both of these have a header with a link to
+   the location of the file.
