@@ -137,7 +137,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vararg/micropy
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all > /dev/null
+    !make USER_C_MODULES=../../../usermod/snippets/ all
 .. code ::
         
     %%micropython
@@ -154,6 +154,144 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vararg/micropy
     this is a 1
     hm, we will sum them: 30
     Look at that! A triplet: 1, 22, 333
+    
+    
+
+Working with strings
+--------------------
+
+We have discussed numerical values in micropython at length. We know how
+we convert an ``mp_obj_t`` object to a native C type, and we also know,
+how we can turn an integer or float into an ``mp_obj_t``, and return it
+at the end of the function. The key components were the
+``mp_obj_get_int()``, ``mp_obj_new_int()``, and ``mp_obj_get_float()``,
+and ``mp_obj_new_float()`` functions. Later we will see, what we can do
+with various iterables, like lists and tuples, but before that, I would
+like to explain, how one handles strings. (Strings are also iterables in
+python, by the way, however, they also have a native C equivalent.)
+
+At the beginning, we said that in micropython, almost everything is an
+``mp_obj_t`` object. Strings are no exception: however, the ``mp_obj_t``
+that denotes the string does not store its value, but a pointer to the
+memory location, where the characters are stored. The reason is rather
+trivial: the ``mp_obj_t`` has a size of 8 bytes, hence,the can’t
+possibly store a string that is longer than 7 bytes. (The same applies
+to more complicated objects.)
+
+Now, the procedure of working with the string would kick out with
+retrieving the pointer, and then we could increment its value till we
+encounter the ``\0`` character, which indicates that the string has
+ended. Fortunately, micropython has a handy macro for retrieving the
+string’s value and its length, so we don’t have to concern ourselves
+with the really low-level stuff. For the string utilities, we should
+include ``py/objstr.h`` (for the micropython things), and ``string.h``
+(for ``strcpy``). ``py/objstr.c`` contains a number of tools for string
+manipulation. Before you try to implement your own functions, it might
+be worthwhile to check that out. You might find something useful.
+
+Our next module is going to take a single string as an argument, print
+out its length (you already know, how to return the length, don’t you?),
+and return the contents backwards. All this in 33 lines.
+
+https://github.com/v923z/micropython-usermod/tree/master/snippets/stringarg/stringarg.c
+
+.. code:: cpp
+        
+    
+    #include <string.h>
+    #include "py/obj.h"
+    #include "py/runtime.h"
+    #include "py/objstr.h"
+    
+    #define byteswap(a,b) char tmp = a; a = b; b = tmp; 
+    
+    STATIC mp_obj_t stringarg_function(const mp_obj_t o_in) {
+        mp_check_self(mp_obj_is_str_or_bytes(o_in));
+        GET_STR_DATA_LEN(o_in, str, str_len);
+        printf("string length: %lu\n", str_len);
+        char out_str[str_len];
+        strcpy(out_str, (char *)str);
+        for(size_t i=0; i < (str_len-1)/2; i++) {
+            byteswap(out_str[i], out_str[str_len-i-1]);
+        }
+        return mp_obj_new_str(out_str, str_len);
+    } 
+    
+    STATIC MP_DEFINE_CONST_FUN_OBJ_1(stringarg_function_obj, stringarg_function);
+    
+    STATIC const mp_rom_map_elem_t stringarg_module_globals_table[] = {
+        { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_stringarg) },
+        { MP_ROM_QSTR(MP_QSTR_stringarg), MP_ROM_PTR(&stringarg_function_obj) },
+    };
+    STATIC MP_DEFINE_CONST_DICT(stringarg_module_globals, stringarg_module_globals_table);
+    
+    const mp_obj_module_t stringarg_user_cmodule = {
+        .base = { &mp_type_module },
+        .globals = (mp_obj_dict_t*)&stringarg_module_globals,
+    };
+    
+    MP_REGISTER_MODULE(MP_QSTR_stringarg, stringarg_user_cmodule, MODULE_STRINGARG_ENABLED);
+
+The macro defined in ``objstr.h`` takes three arguments, out of which
+only the first one is actually defined. The other two are defined in the
+macro itself. So, in the line
+
+.. code:: c
+
+   GET_STR_DATA_LEN(o_in, str, str_len);
+
+only ``o_in`` is known at the moment the macro is called, ``str``, which
+will be a pointer to type character, and ``str_len``, which is of type
+``size_t``, and holds the length of the string, are created by
+``GET_STR_DATA_LEN`` itself. This is, why we can later stick
+``str_len``, and ``str`` into print statements, though, we never
+declared these variables.
+
+After ``GET_STR_DATA_LEN`` has been called, we are in C land. First, we
+print out the length, then reverse the string. But why can’t we do the
+string inversion on the original string, and why do we have to declare a
+new variable, ``out_str``? The reason for that is that the
+``GET_STR_DATA_LEN`` macro declares a ``const`` string, which we can’t
+change anymore, so we have to copy the content (``strcpy`` from
+``string.h``), and swap the bytes in ``out_str``. When doing so, we
+should keep in mind that the very last byte in the string is the
+termination character, hence, we exchange the ``i``\ th position with
+the ``str_len-i-1``\ th position. If you fail to notice the ``-1``,
+you’ll end up with an empty string: even though the byte swapping would
+run without complaints, the very first byte would be equal to ``\0``.
+
+At the very end, we return from our function with a call to
+``mp_obj_new_str``, which creates a new ``mp_obj_t`` object that points
+to the content of the string. And we are done! All there is left to do
+is compilation. Let’s take care of that!
+
+https://github.com/v923z/micropython-usermod/tree/master/snippets/stringarg/micropython.mk
+
+.. code:: make
+        
+    
+    USERMODULES_DIR := $(USERMOD_DIR)
+    
+    # Add all C files to SRC_USERMOD.
+    SRC_USERMOD += $(USERMODULES_DIR)/stringarg.c
+    
+    # We can add our module folder to include paths if needed
+    # This is not actually needed in this example.
+    CFLAGS_USERMOD += -I$(USERMODULES_DIR)
+.. code:: bash
+
+    !make USER_C_MODULES=../../../usermod/snippets/ all
+.. code ::
+        
+    %%micropython
+    
+    import stringarg
+    
+    print(stringarg.stringarg('...krow ta eludom gragnirts eht'))
+.. parsed-literal::
+
+    string length: 31
+    the stringarg module at work...
     
     
 
@@ -304,7 +442,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/keywordfunctio
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all > /dev/null
+    !make USER_C_MODULES=../../../usermod/snippets/ all
 .. code ::
         
     %%micropython
@@ -422,7 +560,9 @@ respective C representation by prepending the ``MP_QSTR_``. At this
 point, we have a string, but we still can’t assign it as a default
 value. We do that by first applying the ``MP_ROM_QSTR`` macro, and
 assigning the results to the ``.u_rom_obj`` member of the ``mp_arg_t``
-structure.
+structure. You most certainly will want to inspect the value at one
+point. We have already discussed the drill in `Working with
+strings <#Working-with-strings>`__.
 
 The fourth argument, ``d``, is meant to be a float. Since there is no
 equivalent of a float in the ``mp_arg_t`` structure, we have to turn our
@@ -477,7 +617,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/arbitrarykeywo
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all > /dev/null
+    !make USER_C_MODULES=../../../usermod/snippets/ all
 .. code ::
         
     %%micropython
@@ -487,5 +627,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/arbitrarykeywo
     print(arbitrarykeyword.print(-35, b=555, c='foo', d='bar', e=[1, 2, 3]))
 .. parsed-literal::
 
+    (1, 123, 'float', 0.9869999999999999, (0, 'float', 0.9869999999999999))
+    (-35, 555, 'foo', 'bar', [1, 2, 3])
     
     

@@ -759,7 +759,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/subscriptitera
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all > /dev/null
+    !make USER_C_MODULES=../../../usermod/snippets/ all
 .. code ::
         
     %%micropython

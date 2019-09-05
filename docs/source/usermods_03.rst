@@ -8,6 +8,10 @@ as the current working directory.
 .. code:: bash
 
     !cd ../../micropython/ports/unix/
+.. parsed-literal::
+
+    /home/v923z/sandbox/micropython/v1.11/micropython/ports/unix
+
 The micropython codebase itself is set up a rather modular way. Provided
 you cloned the micropython repository with
 
@@ -67,6 +71,7 @@ found in the port’s root folder, for which you are compiling) as
    #define MODULE_SUBSCRIPTITERABLE_ENABLED (1)
    #define MODULE_SLICEITERABLE_ENABLED (1)
    #define MODULE_VARARG_ENABLED (1)
+   #define MODULE_STRINGARG_ENABLED (1)
 
 and then call ``make`` without the ``CFLAGS_EXTRA`` flag:
 
