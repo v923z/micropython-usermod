@@ -7,7 +7,7 @@ can start with our explorations in earnest. We begin by adding a simple
 module to micropython. The module will have a single function that takes
 two numbers, and adds them. I know that this is the most exciting thing
 since sliced bread, and you have always wondered, why there isn’t a
-built-in python function for such an fascinating task. Well, wonder no
+built-in python function for such a fascinating task. Well, wonder no
 more! From this moment, *your* micropython will have one.
 
 First I show the file in its entirety (20 something lines all in all),

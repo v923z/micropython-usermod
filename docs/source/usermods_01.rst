@@ -48,7 +48,7 @@ work. Moreover, I include a small demonstration, so that we can actually
 see that our code works. The code, as well as the source of this
 document are also available under
 https://github.com/v923z/micropython-usermod. The simples way of getting
-started is probably clone the repository.
+started is probably cloning the repository.
 
 I start out with a very simple module and slowly build upon it. At the
 very end of the discussion, I will outline my version of a
