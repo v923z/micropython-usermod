@@ -50,6 +50,11 @@ document are also available under
 https://github.com/v923z/micropython-usermod. The simples way of getting
 started is probably cloning the repository.
 
+As for the source: all that you see here originates from a single
+jupyter notebook. That’s right, the documentation, the C source, the
+compilation, and the testing. You can find the notebook at
+https://github.com/v923z/micropython-usermod/blob/master/docs/micropython-usermod.ipynb.
+
 I start out with a very simple module and slowly build upon it. At the
 very end of the discussion, I will outline my version of a
 general-purpose math library, similar to numpy. In fact, it was when I
