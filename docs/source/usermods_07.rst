@@ -174,9 +174,9 @@ At the beginning, we said that in micropython, almost everything is an
 ``mp_obj_t`` object. Strings are no exception: however, the ``mp_obj_t``
 that denotes the string does not store its value, but a pointer to the
 memory location, where the characters are stored. The reason is rather
-trivial: the ``mp_obj_t`` has a size of 8 bytes, hence,the can’t
+trivial: the ``mp_obj_t`` has a size of 8 bytes, hence, the object can’t
 possibly store a string that is longer than 7 bytes. (The same applies
-to more complicated objects.)
+to more complicated objects, e.g., lists, or tuples.)
 
 Now, the procedure of working with the string would kick out with
 retrieving the pointer, and then we could increment its value till we
