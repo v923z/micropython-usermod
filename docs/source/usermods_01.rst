@@ -48,12 +48,17 @@ work. Moreover, I include a small demonstration, so that we can actually
 see that our code works. The code, as well as the source of this
 document are also available under
 https://github.com/v923z/micropython-usermod. The simples way of getting
-started is probably cloning the repository.
+started is probably cloning the repository with
+
+.. code:: bash
+
+   git clone https://github.com/v923z/micropython-usermod.git
 
 As for the source: all that you see here originates from a single
 jupyter notebook. That’s right, the documentation, the C source, the
 compilation, and the testing. You can find the notebook at
 https://github.com/v923z/micropython-usermod/blob/master/docs/micropython-usermod.ipynb.
+And should you wonder, everything is under the MIT licence.
 
 I start out with a very simple module and slowly build upon it. At the
 very end of the discussion, I will outline my version of a

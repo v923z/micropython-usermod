@@ -448,12 +448,12 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/keywordfunctio
     %%micropython
     
     import keywordfunction
-    print(keywordfunction.add_ints(3, b=4))
+    print(keywordfunction.add_ints(-3, b=4))
     print(keywordfunction.add_ints(3))
 .. parsed-literal::
 
-    a = 3, b = 4
-    7
+    a = -3, b = 4
+    1
     a = 3, b = 0
     3
     

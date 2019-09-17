@@ -226,7 +226,7 @@ nifty package like
     
 
 Well, we could have, but since we specifically raised an exception in
-the first statement, our code would never had gotten beyond
+the first statement, our code would never have gotten beyond
 
 .. code:: python
 
