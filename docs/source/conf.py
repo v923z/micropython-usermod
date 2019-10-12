@@ -22,7 +22,7 @@ copyright = '2019, Zoltán Vörös'
 author = 'Zoltán Vörös'
 
 # The full version, including alpha/beta/rc tags
-release = '1.31'
+release = '1.32'
 
 
 # -- General configuration ---------------------------------------------------
@@ -59,3 +59,8 @@ master_doc = 'index'
 author=u'Zoltán Vörös'
 copyright=author
 language='en'
+
+latex_documents = [
+(master_doc, 'usermod.tex', 'Micropython usermod documentation', 
+'Zoltán Vörös', 'manual'),
+]

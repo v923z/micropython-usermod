@@ -95,7 +95,7 @@ have various scopes, which are listed here:
 
 -  if the heading of the code block is ``%%micropython``, then, well,
    you guessed it right, the content should be passed to the micropython
-   interpreter of your choice of port.
+   interpreter of your port of choice.
 
 -  other code segments can be C code, or a makefile. These should be
    easy to recognise, because both of these have a header with a link to
