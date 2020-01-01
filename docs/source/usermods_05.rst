@@ -1,4 +1,3 @@
-
 Developing your first module
 ============================
 
@@ -212,7 +211,18 @@ you should be able to compile the module above by calling
 
 .. code:: bash
 
+    !make clean
     !make USER_C_MODULES=../../../usermod/snippets/ all
+As mentioned earlier, if you do not want to touch anything in the
+micropython code base, you can simply pass the definition to make as
+
+.. code:: bash
+
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SIMPLEFUNCTION_ENABLED=1 all
+You will also note that we ran ``make clean`` before the compilation.
+This is always good practice, when you are developing your own modules.
+
 We can then test the module as
 
 .. code ::

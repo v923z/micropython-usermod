@@ -1,4 +1,3 @@
-
 The micropython code base
 =========================
 
@@ -8,6 +7,10 @@ as the current working directory.
 .. code:: bash
 
     !cd ../../micropython/ports/unix/
+.. parsed-literal::
+
+    /home/v923z/sandbox/micropython/v1.11/micropython/ports/unix
+
 The micropython codebase itself is set up a rather modular way. Provided
 you cloned the micropython repository with
 

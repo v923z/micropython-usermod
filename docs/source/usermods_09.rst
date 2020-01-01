@@ -1,4 +1,3 @@
-
 Creating new types
 ==================
 
@@ -140,7 +139,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vector/micropy
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_VECTOR_ENABLED=1 all
 .. code ::
         
     %%micropython

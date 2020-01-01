@@ -1,4 +1,3 @@
-
 Parsing arguments
 =================
 
@@ -137,7 +136,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vararg/micropy
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_VARARG_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -280,7 +280,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/stringarg/micr
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_STRINGARG_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -442,7 +443,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/keywordfunctio
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_KEYWORDFUNCTION_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -617,7 +619,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/arbitrarykeywo
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_ARBITRARYKEYWORD_ENABLED=1 all
 .. code ::
         
     %%micropython

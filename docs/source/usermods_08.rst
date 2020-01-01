@@ -1,4 +1,3 @@
-
 Working with classes
 ====================
 
@@ -196,7 +195,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simpleclass/mi
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SIMPLECLASS_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -491,7 +491,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/specialclass/m
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SPECIALCLASS_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -535,3 +536,234 @@ and then the constant would then be accessible in the interpreter as
    import some_class
 
    some_class.MAGIC
+
+Properties
+----------
+
+In addition to methods, in python, classes can also have properties,
+which will basically return some read-only attributes of the class. Take
+the following example:
+
+.. code ::
+        
+    class PropClass:
+    
+        def __init__(self, x):
+            self._x = x
+    
+        @property
+        def x(self):
+            return self._x
+We can now create an instance of ``PropClass``, and access the value of
+``_x`` by “calling” the decorated ``x`` method without the brackets
+characteristic of function calls:
+
+.. code ::
+        
+    c = PropClass(12.3)
+    c.x
+
+
+
+.. parsed-literal::
+
+    12.3
+
+
+
+One use case is, when you want to protect the value of ``_x``, and want
+to prevent accidental changes: if you want to write to the ``x``
+property, you’ll get a nicely-formatted exception:
+
+.. code ::
+        
+    c.x = 55.5
+
+::
+
+
+    ---------------------------------------------------------------------------
+
+    AttributeError                            Traceback (most recent call last)
+
+    <ipython-input-50-63b5601caccb> in <module>
+    ----> 1 c.x = 55.5
+    
+
+    AttributeError: can't set attribute
+
+
+It is nifty, isn’t it? Now, let us see, how we can deal with this in
+micropython. In order to simplify things, we will implement what we have
+just seen above: a class that holds a single floating point value, and
+does nothing else.
+
+Most of the code should be familiar from our first example on classes,
+so I will discuss the single new function that is relevant to
+properties. At the C level, a property is nothing but a void function
+with exactly three arguments
+
+.. code:: c
+
+   STATIC void some_attr(mp_obj_t self_in, qstr attribute, mp_obj_t *destination) {
+       ...
+   }
+
+where ``self_in`` is the class instance, ``attribute`` is a string with
+the property’s name, and ``destination`` is a pointer to the return
+value of the function that is going to be called, when querying for the
+property. So, in the python example above, ``attribute`` is ``x``,
+because we queried the ``x`` property, and ``destination`` will be the
+equivalent of ``self._x``, because ``self._x`` is what is returned by
+the ``PropClass.x()`` method.
+
+In the C function, we do not return anything, instead, we assign the
+desired property (attribute) of the class to ``destination[0]`` as in
+the snippet below:
+
+.. code:: c
+
+   STATIC void propertyclass_attr(mp_obj_t self, qstr attribute, mp_obj_t *destination) {
+       if(attribute == MP_QSTR_x) {
+           destination[0] = propertyclass_x(self);
+       }
+   }
+
+The ``qstr`` is required, because a class might have multiple
+properties, but all these properties are retrieved by a single function,
+``propertyclass_attr``. Thus, should we want to return another property
+with name ``y``, we would augment the function as
+
+.. code:: c
+
+   STATIC void propertyclass_attr(mp_obj_t self, qstr attribute, mp_obj_t *destination) {
+       if(attribute == MP_QSTR_x) {
+           destination[0] = propertyclass_x(self);
+       } else if(attribute == MP_QSTR_y) {
+           destination[0] = propertyclass_y(self);
+       }
+   }
+
+Now, we are almost done, but we still have to implement the function
+that actually retrieves the attribute. This is what happens here:
+
+.. code:: c
+
+   STATIC mp_obj_t propertyclass_x(mp_obj_t self_in) {
+       propertyclass_obj_t *self = MP_OBJ_TO_PTR(self_in);
+       return mp_obj_new_float(self->x);
+   }
+
+Remember, ``destination`` was a pointer to ``mp_obj_t``, so whatever
+function we have, it must return ``mp_obj_t``. In this particular case,
+the implementation is trivial: we fetch the value of ``self->x``, and
+turn it into an ``mp_obj_new_float``.
+
+We are now done, right? Not quite: while the required functions are
+implemented, they will never be called. We have to attach them to the
+class, so that the interpreter knows what is to do, when we try to
+access ``c.x``. This act of attaching the function happens in the type
+definition of the class: we equate the ``.attr`` member of the structure
+with our ``propertyclass_attr`` functions, so that the interpreter can
+fill in the three arguments.
+
+And with that, we are ready to compile the code.
+
+https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/properties.c
+
+.. code:: cpp
+        
+    
+    #include <stdio.h>
+    #include "py/runtime.h"
+    #include "py/obj.h"
+    
+    typedef struct _propertyclass_obj_t {
+        mp_obj_base_t base;
+        mp_float_t x;
+    } propertyclass_obj_t;
+    
+    const mp_obj_type_t propertyclass_type;
+    
+    STATIC mp_obj_t propertyclass_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+        mp_arg_check_num(n_args, n_kw, 1, 1, true);
+        propertyclass_obj_t *self = m_new_obj(propertyclass_obj_t);
+        self->base.type = &propertyclass_type;
+        self->x = mp_obj_get_float(args[0]);
+        return MP_OBJ_FROM_PTR(self);
+    }
+    
+    STATIC mp_obj_t propertyclass_x(mp_obj_t self_in) {
+        propertyclass_obj_t *self = MP_OBJ_TO_PTR(self_in);
+        return mp_obj_new_float(self->x);
+    }
+    
+    MP_DEFINE_CONST_FUN_OBJ_1(propertyclass_x_obj, propertyclass_x);
+    
+    STATIC const mp_rom_map_elem_t propertyclass_locals_dict_table[] = {
+        { MP_ROM_QSTR(MP_QSTR_x), MP_ROM_PTR(&propertyclass_x_obj) },
+    };
+    
+    STATIC MP_DEFINE_CONST_DICT(propertyclass_locals_dict, propertyclass_locals_dict_table);
+    
+    STATIC void propertyclass_attr(mp_obj_t self, qstr attribute, mp_obj_t *destination) {
+        if(attribute == MP_QSTR_x) {
+            destination[0] = propertyclass_x(self);
+        }
+    }
+    
+    const mp_obj_type_t propertyclass_type = {
+        { &mp_type_type },
+        .name = MP_QSTR_propertyclass,
+        .make_new = propertyclass_make_new,
+        .attr = propertyclass_attr,
+        .locals_dict = (mp_obj_dict_t*)&propertyclass_locals_dict,
+    };
+    
+    STATIC const mp_map_elem_t propertyclass_globals_table[] = {
+        { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_propertyclass) },
+        { MP_OBJ_NEW_QSTR(MP_QSTR_propertyclass), (mp_obj_t)&propertyclass_type },	
+    };
+    
+    STATIC MP_DEFINE_CONST_DICT (
+        mp_module_propertyclass_globals,
+        propertyclass_globals_table
+    );
+    
+    const mp_obj_module_t propertyclass_user_cmodule = {
+        .base = { &mp_type_module },
+        .globals = (mp_obj_dict_t*)&mp_module_propertyclass_globals,
+    };
+    
+    MP_REGISTER_MODULE(MP_QSTR_propertyclass, propertyclass_user_cmodule, MODULE_PROPERTYCLASS_ENABLED);
+
+https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/micropython.mk
+
+.. code:: make
+        
+    
+    USERMODULES_DIR := $(USERMOD_DIR)
+    
+    # Add all C files to SRC_USERMOD.
+    SRC_USERMOD += $(USERMODULES_DIR)/properties.c
+    
+    # We can add our module folder to include paths if needed
+    # This is not actually needed in this example.
+    CFLAGS_USERMOD += -I$(USERMODULES_DIR)
+.. code:: bash
+
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_PROPERTYCLASS_ENABLED=1 all
+.. code ::
+        
+    %%micropython 
+    
+    import propertyclass
+    a = propertyclass.propertyclass(12.3)
+    
+    print(a.x)
+.. parsed-literal::
+
+    12.3
+    
+    

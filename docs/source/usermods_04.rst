@@ -1,4 +1,3 @@
-
 micropython internals
 =====================
 
@@ -80,24 +79,24 @@ is done by calling
 
    mp_obj_new_int(value_of_some_variable)
 
-More generic types can be treated with the macro ``MP_OBJ_IS_TYPE``,
+More generic types can be treated with the macro ``mp_obj_is_type``,
 which takes the object as the first, and a pointer to the type as the
 second argument. Now, if you want to find out, whether ``some_variable``
-is a tuple, you could apply the ``MP_OBJ_IS_TYPE`` macro,
+is a tuple, you could apply the ``mp_obj_is_type`` macro,
 
 .. code:: c
 
-   MP_OBJ_IS_TYPE(some_variable, &mp_type_tuple)
+   mp_obj_is_type(some_variable, &mp_type_tuple)
 
 While the available types can be found in ``obj.h``, they all follow the
 ``mp_type_`` + python type pattern, so in most cases, it is not even
 necessary to look them up. We should also note that it is also possible
-to define new types. When done properly, ``MP_OBJ_IS_TYPE`` can be
+to define new types. When done properly, ``mp_obj_is_type`` can be
 called on objects with this new type, i.e.,
 
 .. code:: c
 
-   MP_OBJ_IS_TYPE(myobject, &my_type)
+   mp_obj_is_type(myobject, &my_type)
 
 will just work. We return to this question later.
 

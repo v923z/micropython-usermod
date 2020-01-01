@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'micropython-usermod'
-copyright = '2019, Zoltán Vörös'
+copyright = '2019-2020, Zoltán Vörös'
 author = 'Zoltán Vörös'
 
 # The full version, including alpha/beta/rc tags
-release = '1.32'
+release = '1.4'
 
 
 # -- General configuration ---------------------------------------------------

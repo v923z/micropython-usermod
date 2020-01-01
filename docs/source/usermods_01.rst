@@ -1,4 +1,3 @@
-
 Introduction
 ============
 
@@ -47,8 +46,8 @@ source, so that copying and pasting does not involve copious amounts of
 work. Moreover, I include a small demonstration, so that we can actually
 see that our code works. The code, as well as the source of this
 document are also available under
-https://github.com/v923z/micropython-usermod. The simples way of getting
-started is probably cloning the repository with
+https://github.com/v923z/micropython-usermod. The simplest way of
+getting started is probably cloning the repository with
 
 .. code:: bash
 
@@ -89,10 +88,8 @@ have various scopes, which are listed here:
 
 -  if a code block begins with an exclamation mark, the content is meant
    to be executed on the command line.
-
 -  if the code block looks like a piece of python code, it should be run
    in a python interpreter.
-
 -  if the heading of the code block is ``%%micropython``, then, well,
    you guessed it right, the content should be passed to the micropython
    interpreter of your port of choice.

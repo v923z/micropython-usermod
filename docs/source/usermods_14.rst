@@ -1,4 +1,3 @@
-
 Outline of a math library
 =========================
 

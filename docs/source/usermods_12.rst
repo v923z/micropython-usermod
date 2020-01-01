@@ -1,4 +1,3 @@
-
 Working with larger modules
 ===========================
 
@@ -101,6 +100,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/largemodule/mi
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
+    !make clean
     !make USER_C_MODULES=../../../usermod/snippets/ all
 .. code ::
         

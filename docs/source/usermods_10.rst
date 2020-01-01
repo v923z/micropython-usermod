@@ -1,4 +1,3 @@
-
 Dealing with iterables
 ======================
 
@@ -144,7 +143,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/consumeiterabl
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_CONSUMEITERABLE_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -246,7 +246,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/returniterable
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_RETURNITERABLE_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -759,7 +760,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/subscriptitera
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SUBSCRIPTITERABLE_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -1049,7 +1051,8 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sliceiterable/
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SLICEITERABLE_ENABLED=1 all
 .. code ::
         
     %%micropython 

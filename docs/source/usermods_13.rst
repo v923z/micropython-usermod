@@ -1,4 +1,3 @@
-
 A word for the lazy
 ===================
 
