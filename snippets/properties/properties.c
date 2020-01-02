@@ -40,9 +40,9 @@ STATIC const mp_rom_map_elem_t propertyclass_locals_dict_table[] = {
 
 STATIC MP_DEFINE_CONST_DICT(propertyclass_locals_dict, propertyclass_locals_dict_table);
 
-STATIC void propertyclass_attr(mp_obj_t self, qstr attribute, mp_obj_t *destination) {
+STATIC void propertyclass_attr(mp_obj_t self_in, qstr attribute, mp_obj_t *destination) {
     if(attribute == MP_QSTR_x) {
-        destination[0] = propertyclass_x(self);
+        destination[0] = propertyclass_x(self_in);
     }
 }
 

@@ -706,9 +706,9 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/pro
     
     STATIC MP_DEFINE_CONST_DICT(propertyclass_locals_dict, propertyclass_locals_dict_table);
     
-    STATIC void propertyclass_attr(mp_obj_t self, qstr attribute, mp_obj_t *destination) {
+    STATIC void propertyclass_attr(mp_obj_t self_in, qstr attribute, mp_obj_t *destination) {
         if(attribute == MP_QSTR_x) {
-            destination[0] = propertyclass_x(self);
+            destination[0] = propertyclass_x(self_in);
         }
     }
     
@@ -736,6 +736,43 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/pro
     };
     
     MP_REGISTER_MODULE(MP_QSTR_propertyclass, propertyclass_user_cmodule, MODULE_PROPERTYCLASS_ENABLED);
+
+Before we compile the module, I would like to add two comments to what
+was said above.
+
+First, in the function that we assigned to ``.attr``,
+
+.. code:: c
+
+   STATIC void propertyclass_attr(mp_obj_t self_in, qstr attribute, mp_obj_t *destination) {
+       if(attribute == MP_QSTR_x) {
+           destination[0] = propertyclass_x(self_in);
+       }
+   }
+
+we called a function on ``self_in``, ``propertyclass_x()``, and assigned
+the results to ``destination[0]``. However, this extra trip is not
+absolutely necessary: we could have equally done something along these
+lines:
+
+.. code:: c
+
+   STATIC void propertyclass_attr(mp_obj_t self_in, qstr attribute, mp_obj_t *destination) {
+       if(attribute == MP_QSTR_x) {
+           propertyclass_obj_t *self = MP_OBJ_TO_PTR(self_in);
+           destination[0] = mp_obj_new_float(self->x);
+       }
+   }
+
+The case in point being that ``destination[0]`` is simply an
+``mp_obj_t`` object, it does not matter, where and how it is produced.
+Since ``self`` is available to ``propertyclass_attr``, if the property
+is simple, as above, one can save the function call, and do everything
+in place.
+
+Second, more examples on implementing properties can be found in
+`py/profile.c <https://github.com/micropython/micropython/blob/master/py/profile.c>`__.
+Just look for the ``.attr`` string, and the associated functions!
 
 https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/micropython.mk
 
