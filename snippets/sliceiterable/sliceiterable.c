@@ -5,7 +5,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Zoltán Vörös
+ * Copyright (c) 2019-2020 Zoltán Vörös
 */
     
 #include <stdlib.h>
@@ -59,7 +59,7 @@ STATIC mp_obj_t sliceitarray_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t v
     if (value == MP_OBJ_SENTINEL) { // simply return the values at index, no assignment
 
 #if MICROPY_PY_BUILTINS_SLICE
-        if (MP_OBJ_IS_TYPE(index, &mp_type_slice)) {
+        if (mp_obj_is_type(index, &mp_type_slice)) {
             mp_bound_slice_t slice;
             mp_seq_get_fast_slice_indexes(self->len, index, &slice);
             printf("start: %ld, stop: %ld, step: %ld\n", slice.start, slice.stop, slice.step);

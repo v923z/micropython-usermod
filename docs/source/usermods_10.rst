@@ -86,7 +86,7 @@ enclose your function in a
 construct, or you can inspect the type of the variable at the C level.
 Unfortunately, there does not seem to be a type identifier for iterables
 in general, so you have to check, whether the argument is a list, tuple,
-range, etc. This can be done by calling the ``MP_OBJ_IS_TYPE`` macro,
+range, etc. This can be done by calling the ``mp_obj_is_type`` macro,
 and see which Boolean it returns, if you pass ``&mp_type_tuple``,
 ``&mp_type_list``, ``&mp_type_range`` etc. to it, as we discussed in the
 section `Object representation <#Object-representation>`__.
@@ -850,7 +850,7 @@ snippet:
        if (value == MP_OBJ_SENTINEL) { // simply return the values at index, no assignment
 
    #if MICROPY_PY_BUILTINS_SLICE
-           if (MP_OBJ_IS_TYPE(index, &mp_type_slice)) {
+           if (mp_obj_is_type(index, &mp_type_slice)) {
                mp_bound_slice_t slice;
                mp_seq_get_fast_slice_indexes(self->len, index, &slice);
                uint16_t len = (slice.stop - slice.start) / slice.step;
@@ -881,7 +881,7 @@ out if it is a slice by calling
 
 .. code:: c
 
-   MP_OBJ_IS_TYPE(index, &mp_type_slice)
+   mp_obj_is_type(index, &mp_type_slice)
 
 If so, we attempt to load the slice parameters into the ``slice`` object
 with
@@ -961,7 +961,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sliceiterable/
         if (value == MP_OBJ_SENTINEL) { // simply return the values at index, no assignment
     
     #if MICROPY_PY_BUILTINS_SLICE
-            if (MP_OBJ_IS_TYPE(index, &mp_type_slice)) {
+            if (mp_obj_is_type(index, &mp_type_slice)) {
                 mp_bound_slice_t slice;
                 mp_seq_get_fast_slice_indexes(self->len, index, &slice);
                 printf("start: %ld, stop: %ld, step: %ld\n", slice.start, slice.stop, slice.step);

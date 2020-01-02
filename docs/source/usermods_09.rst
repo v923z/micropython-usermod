@@ -25,7 +25,7 @@ you still recall the
 
 .. code:: c
 
-   MP_OBJ_IS_TYPE(myobject, &my_type)
+   mp_obj_is_type(myobject, &my_type)
 
 macro in Section `Type checking? <#Type-checking>`__ I thought so.
 
