@@ -369,11 +369,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/makeiterable/m
     STATIC void itarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
         (void)kind;
         itarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
-        printf("itarray: ");
-        for(uint16_t i=0; i < self->len; i++) {
-            printf("%d ", self->elements[i]);
+        mp_print_str(print, "itarray: ");
+        uint16_t i;
+        for(i=0; i < self->len-1; i++) {
+            mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
+            mp_print_str(print, ", ");
         }
-        printf("\n");
+        mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
     }
     
     STATIC mp_obj_t itarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
@@ -446,8 +448,23 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/makeiterable/m
         return MP_OBJ_FROM_PTR(o);
     }
 
+https://github.com/v923z/micropython-usermod/tree/master/snippets/makeiterable/micropython.mk
 
+.. code:: make
+        
+    
+    USERMODULES_DIR := $(USERMOD_DIR)
+    
+    # Add all C files to SRC_USERMOD.
+    SRC_USERMOD += $(USERMODULES_DIR)/makeiterable.c
+    
+    # We can add our module folder to include paths if needed
+    # This is not actually needed in this example.
+    CFLAGS_USERMOD += -I$(USERMODULES_DIR)
+.. code:: bash
 
+    !make clean
+    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_MAKEITERABLE_ENABLED=1 all
 .. code ::
         
     %%micropython
@@ -464,8 +481,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/makeiterable/m
             print('%dth element: %d'%(j, i))
 .. parsed-literal::
 
-    itarray: 0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 
-    
+    itarray: 0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196
     0th element: 0
     1st element: 1
     2nd element: 4
@@ -481,6 +497,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/makeiterable/m
     12th element: 144
     13th element: 169
     14th element: 196
+    
     
 
 Subscripts
@@ -653,11 +670,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/subscriptitera
     STATIC void subitarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
         (void)kind;
         subitarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
-        printf("subitarray: ");
-        for(uint16_t i=0; i < self->len; i++) {
-            printf("%d ", self->elements[i]);
+        mp_print_str(print, "subitarray: ");
+        uint16_t i;
+        for(i=0; i < self->len-1; i++) {
+            mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
+            mp_print_str(print, ", ");
         }
-        printf("\n");
+        mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
     }
     
     STATIC mp_obj_t subitarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
@@ -769,17 +788,14 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/subscriptitera
     import subscriptiterable
     a = subscriptiterable.square(15)
     print(a)
-    print('the third element is %d'%a[3])
-    b = 3+7
-    a[b] = 0
+    print('the fourth element is %d'%a[3])
+    a[10] = 0
     print(a)
 .. parsed-literal::
 
-    subitarray: 0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 
-    
-    the third element is 9
-    subitarray: 0 1 4 9 16 25 36 49 64 81 0 121 144 169 196 
-    
+    subitarray: 0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196
+    the fourth element is 9
+    subitarray: 0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 0, 121, 144, 169, 196
     
     
 
@@ -927,11 +943,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sliceiterable/
     STATIC void sliceitarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
         (void)kind;
         sliceitarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
-        printf("sliceitarray: ");
-        for(uint16_t i=0; i < self->len; i++) {
-            printf("%d ", self->elements[i]);
+        mp_print_str(print, "sliceitarray: ");
+        uint16_t i;
+        for(i=0; i < self->len-1; i++) {
+            mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
+            mp_print_str(print, ", ");
         }
-        printf("\n");
+        mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
     }
     
     sliceitarray_obj_t *create_new_sliceitarray(uint16_t len) {
@@ -965,7 +983,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sliceiterable/
                 mp_bound_slice_t slice;
                 mp_seq_get_fast_slice_indexes(self->len, index, &slice);
                 printf("start: %ld, stop: %ld, step: %ld\n", slice.start, slice.stop, slice.step);
-                uint16_t len = (slice.stop - slice.start) / slice.step;
+                uint16_t len = (slice.stop - slice.start + slice.step - 1) / slice.step;
                 sliceitarray_obj_t *res = create_new_sliceitarray(len);
                 for(size_t i=0; i < len; i++) {
                     res->elements[i] = self->elements[slice.start+i*slice.step];
@@ -1049,9 +1067,9 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sliceiterable/
     # We can add our module folder to include paths if needed
     # This is not actually needed in this example.
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
-.. code:: bash
-
-    !make clean
+.. code ::
+        
+    # !make clean
     !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SLICEITERABLE_ENABLED=1 all
 .. code ::
         
@@ -1064,11 +1082,9 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sliceiterable/
     print(a[1:15:3])
 .. parsed-literal::
 
-    sliceitarray: 0 1 4 9 16 25 36 49 64 81 100 121 144 169 196 225 256 289 324 361 
-    
+    sliceitarray: 0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361
     start: 1, stop: 15, step: 3
-    sliceitarray: 1 16 49 100 
-    
+    sliceitarray: 1, 16, 49, 100, 169
     
     
 

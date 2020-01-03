@@ -102,7 +102,11 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simpleclass/si
     STATIC void myclass_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
         (void)kind;
         simpleclass_myclass_obj_t *self = MP_OBJ_TO_PTR(self_in);
-        printf("myclass(%d, %d)", self->a, self->b);
+        mp_print_str(print, "myclass(");
+        mp_obj_print_helper(print, mp_obj_new_int(self->a), PRINT_REPR);
+        mp_print_str(print, ", ");
+        mp_obj_print_helper(print, mp_obj_new_int(self->b), PRINT_REPR);
+        mp_print_str(print, ")");
     }
     
     STATIC mp_obj_t myclass_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
@@ -162,14 +166,10 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simpleclass/si
     
     MP_REGISTER_MODULE(MP_QSTR_simpleclass, simpleclass_user_cmodule, MODULE_SIMPLECLASS_ENABLED);
 
-In ``my_print``, we used the C function ``printf``, but better options
-are also available. ``mpprint.c`` has a number of methods for printing
-all kinds of python objects.
-
 One more thing to note: the functions that are pointed to in
 ``simpleclass_myclass_type`` are not registered with the macro
 ``MP_DEFINE_CONST_FUN_OBJ_VAR`` or similar. The reason for this is that
-this automatically happens: ``myclass_print`` does not require
+this happens automatically: ``myclass_print`` does not require
 user-supplied arguments beyond ``self``, so it is known what the
 signature should look like. In ``myclass_make_new``, we inspect the
 argument list, when calling
@@ -179,6 +179,23 @@ argument list, when calling
    mp_arg_check_num(n_args, n_kw, 2, 2, true);
 
 so, again, there is no need to turn our function into a function object.
+
+Printing class properties
+-------------------------
+
+In ``my_print``, instead of the standard the C function ``printf``, we
+made use of ``mp_print_str``, and ``mp_obj_print_helper``, which are
+options in this case. Both take ``print`` as their first argument. The
+value of ``print`` is supplied by the ``.print`` method of the class
+itself. The second argument is a string (in the case of
+``mp_print_str``), or a ``micropython`` object (for
+``mp_obj_print_helper``). In addition, ``mp_obj_print_helper`` takes a
+pre-defined constant, ``PRINT_REPR`` as its third argument. By resorting
+to these ``micropython`` printing functions, we can make certain that
+the output is formatted nicely, independent of the platform. Whenever
+``print`` is available, these function should be used instead of
+``printf``. For debugging purposes, ``printf`` is also fine. More on the
+subject can be found in ``mpprint.c``.
 
 https://github.com/v923z/micropython-usermod/tree/master/snippets/simpleclass/micropython.mk
 
@@ -404,7 +421,11 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/specialclass/s
     STATIC void myclass_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
         (void)kind;
         specialclass_myclass_obj_t *self = MP_OBJ_TO_PTR(self_in);
-        printf("myclass(%d, %d)", self->a, self->b);
+        mp_print_str(print, "myclass(");
+        mp_obj_print_helper(print, mp_obj_new_int(self->a), PRINT_REPR);
+        mp_print_str(print, ", ");
+        mp_obj_print_helper(print, mp_obj_new_int(self->b), PRINT_REPR);
+        mp_print_str(print, ")");
     }
     
     mp_obj_t create_new_myclass(uint16_t a, uint16_t b) {

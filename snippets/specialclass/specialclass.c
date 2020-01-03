@@ -5,7 +5,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Zoltán Vörös
+ * Copyright (c) 2019-2020 Zoltán Vörös
 */
     
 #include <stdio.h>
@@ -24,7 +24,11 @@ const mp_obj_type_t specialclass_myclass_type;
 STATIC void myclass_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
     specialclass_myclass_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    printf("myclass(%d, %d)", self->a, self->b);
+    mp_print_str(print, "myclass(");
+    mp_obj_print_helper(print, mp_obj_new_int(self->a), PRINT_REPR);
+    mp_print_str(print, ", ");
+    mp_obj_print_helper(print, mp_obj_new_int(self->b), PRINT_REPR);
+    mp_print_str(print, ")");
 }
 
 mp_obj_t create_new_myclass(uint16_t a, uint16_t b) {

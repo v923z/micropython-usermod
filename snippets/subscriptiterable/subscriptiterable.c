@@ -5,7 +5,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Zoltán Vörös
+ * Copyright (c) 2019-2020 Zoltán Vörös
 */
     
 #include <stdlib.h>
@@ -25,11 +25,13 @@ mp_obj_t mp_obj_new_subitarray_iterator(mp_obj_t , size_t , mp_obj_iter_buf_t *)
 STATIC void subitarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
     subitarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    printf("subitarray: ");
-    for(uint16_t i=0; i < self->len; i++) {
-        printf("%d ", self->elements[i]);
+    mp_print_str(print, "subitarray: ");
+    uint16_t i;
+    for(i=0; i < self->len-1; i++) {
+        mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
+        mp_print_str(print, ", ");
     }
-    printf("\n");
+    mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
 }
 
 STATIC mp_obj_t subitarray_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
@@ -55,7 +57,7 @@ STATIC mp_obj_t subitarray_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t val
     if(self->len <= idx) {
         mp_raise_msg(&mp_type_IndexError, "index is out of range");
     }
-    if (value == MP_OBJ_SENTINEL) { // simply return the value at index, no assignment 		
+    if (value == MP_OBJ_SENTINEL) { // simply return the value at index, no assignment
         return MP_OBJ_NEW_SMALL_INT(self->elements[idx]);
     } else { // value was passed, replace the element at index
         self->elements[idx] = mp_obj_get_int(value);

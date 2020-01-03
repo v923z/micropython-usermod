@@ -5,7 +5,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Zoltán Vörös
+ * Copyright (c) 2019-2020 Zoltán Vörös
 */
     
 #include <math.h>
@@ -33,7 +33,13 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(vector_length_obj, vector_length);
 STATIC void vector_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
     vector_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    printf("vector(%f, %f, %f)\n", (double)self->x, (double)self->y, (double)self->z);
+    mp_print_str(print, "vector(");
+    mp_obj_print_helper(print, mp_obj_new_float(self->x), PRINT_REPR);
+    mp_print_str(print, ", ");
+    mp_obj_print_helper(print, mp_obj_new_float(self->y), PRINT_REPR);
+    mp_print_str(print, ", ");
+    mp_obj_print_helper(print, mp_obj_new_float(self->z), PRINT_REPR);
+    mp_print_str(print, ")");
 }
 
 STATIC mp_obj_t vector_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {

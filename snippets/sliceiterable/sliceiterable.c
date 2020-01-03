@@ -25,11 +25,13 @@ mp_obj_t mp_obj_new_sliceitarray_iterator(mp_obj_t , size_t , mp_obj_iter_buf_t 
 STATIC void sliceitarray_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
     (void)kind;
     sliceitarray_obj_t *self = MP_OBJ_TO_PTR(self_in);
-    printf("sliceitarray: ");
-    for(uint16_t i=0; i < self->len; i++) {
-        printf("%d ", self->elements[i]);
+    mp_print_str(print, "sliceitarray: ");
+    uint16_t i;
+    for(i=0; i < self->len-1; i++) {
+        mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
+        mp_print_str(print, ", ");
     }
-    printf("\n");
+    mp_obj_print_helper(print, mp_obj_new_int(self->elements[i]), PRINT_REPR);
 }
 
 sliceitarray_obj_t *create_new_sliceitarray(uint16_t len) {
@@ -63,7 +65,7 @@ STATIC mp_obj_t sliceitarray_subscr(mp_obj_t self_in, mp_obj_t index, mp_obj_t v
             mp_bound_slice_t slice;
             mp_seq_get_fast_slice_indexes(self->len, index, &slice);
             printf("start: %ld, stop: %ld, step: %ld\n", slice.start, slice.stop, slice.step);
-            uint16_t len = (slice.stop - slice.start) / slice.step;
+            uint16_t len = (slice.stop - slice.start + slice.step - 1) / slice.step;
             sliceitarray_obj_t *res = create_new_sliceitarray(len);
             for(size_t i=0; i < len; i++) {
                 res->elements[i] = self->elements[slice.start+i*slice.step];

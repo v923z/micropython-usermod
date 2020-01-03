@@ -89,7 +89,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vector/vector.
     STATIC void vector_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
         (void)kind;
         vector_obj_t *self = MP_OBJ_TO_PTR(self_in);
-        printf("vector(%f, %f, %f)\n", (double)self->x, (double)self->y, (double)self->z);
+        mp_print_str(print, "vector(");
+        mp_obj_print_helper(print, mp_obj_new_float(self->x), PRINT_REPR);
+        mp_print_str(print, ", ");
+        mp_obj_print_helper(print, mp_obj_new_float(self->y), PRINT_REPR);
+        mp_print_str(print, ", ");
+        mp_obj_print_helper(print, mp_obj_new_float(self->z), PRINT_REPR);
+        mp_print_str(print, ")");
     }
     
     STATIC mp_obj_t vector_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
@@ -152,8 +158,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vector/micropy
     print(vector.length(a))
 .. parsed-literal::
 
-    vector(1.000000, 20.000000, 30.000000)
-    
+    vector(1.0, 20.0, 30.0)
     36.06937789916993
     
     
