@@ -23,6 +23,7 @@ Welcome to micropython-usermod's documentation!
    usermods_12
    usermods_13
    usermods_14
+   usermods_15
 
 Indices and tables
 ==================

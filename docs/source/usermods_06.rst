@@ -1,122 +1,142 @@
-Error handling
-==============
+Module constants
+================
 
-There will be cases, when something goes wrong, and you want to bail out
-in an elegant way. If bailing out, and elegance can be used in the same
-sentence, that is. Depending on what kind of difficulty you are facing,
-you can indicate this to the user in different ways, and there seems to
-be a divide between programmers as to whether one should return an error
-code, or do something else.
+We have just seen, how we add a function to python. But functions are
+not the only objects that can be attached to a module, and of particular
+interest are constants. If for nothing else, you can give your module a
+version number. So, let us see, how that can be achieved.
 
-But in the python world, the most common method is to raise some sort of
-exception, and let the user handle the problem. In the following
-snippet, we will see a couple of ways of going about exceptions. We
-implement a single function that raises an exception, no matter what.
-When developing user-friendly code, that is as vicious as you can get, I
-guess.
+Contstants, if they are true to their name, won’t change at run time,
+hence, they can be stored in ROM. We have already seen this, because the
+globals table of our very first module kicked out with the line
 
-First, the code listing:
+.. code:: c
 
-https://github.com/v923z/micropython-usermod/tree/master/snippets/sillyerrors/sillyerrors.c
+       { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_simplefunction) }
+
+Here, the ``MP_QSTR_simplefunction`` was a constant, namely, the string
+``simplefunction`` stored in ROM. This is why it is wrapped by the macro
+``MP_ROM_QSTR``. There are two other ``MP_ROM`` macros defined in
+``obj.h``, namely, ``MP_ROM_INT``, and ``MP_ROM_PTR``.
+
+Integer constants
+-----------------
+
+It should not be a big surprise that the ``MP_ROM_INT`` macro generates
+ROM objects from integers. Thus, the following code will give you the
+magic constant 42:
+
+.. code:: c
+
+   #define MAGIC_CONSTANT 42
+   ...
+
+       { MP_ROM_QSTR(MP_QSTR_magic), MP_ROM_INT(MAGIC_CONSTANT) },
+   ...
+
+Strings
+-------
+
+Now, in ``MP_QSTR_simplefunction``, ``simplefunction`` is a well-behaved
+string, containing no special characters. But are we doomed, if we do
+want to print out a version string, which would probably look like
+``1.2.3``, or something similar? And should we give up all hope, if our
+string contains an underscore? The answer to these questions is no, and
+no! This is, where the ``MP_ROM_PTR`` macro comes to the rescue.
+
+In general, ``MP_ROM_PTR`` will take the address of an object, and
+convert it to a 32-bit unsigned integer. At run time, ``micropython``
+works with this integer, if it has to access the constant. And this is
+exactly what happens in the second line of the globals table of
+``simplefunction``:
+
+.. code:: c
+
+   { MP_ROM_QSTR(MP_QSTR_add_ints), MP_ROM_PTR(&simplefunction_add_ints_obj) },
+
+we associated the string ``add_ints`` (incidentally, also stored in ROM)
+with the 32-bit unsigned integer generated from the address of
+``simplefunction_add_ints_obj``. So, the bottom line is, if we can
+somehow get hold of the address of an object, we can wrap it with
+``MP_ROM_PTR``, and we are done.
+
+Thus, if we want to define a string constant, we have to convert it to
+something that has an address. The ``MP_DEFINE_STR_OBJ`` of ``objstr.h``
+does exactly that:
+
+.. code:: c
+
+   STATIC const MP_DEFINE_STR_OBJ(version_string_obj, "1.2.3");
+
+takes ``1.2.3`` as a string, and turns is into a micropython object of
+type ``mp_obj_str_t``. After this, ``&version_string_obj`` can be passed
+to the ``MP_ROM_PTR`` macro.
+
+Tuples
+------
+
+We don’t have to be satisfied with integers and strings, we can
+definitely go further. There is a python type, the ``tuple``, that is,
+by definition, constant (not mutable), and for this reason, we can
+easily define a tuple type module constant. ``objtuple.h`` defines
+``mp_rom_obj_tuple_t`` for this purpose. This is a structure with three
+members, and looks like this:
+
+.. code:: c
+
+   const mp_rom_obj_tuple_t version_tuple_obj = {
+       {&mp_type_tuple},
+       2,
+       {
+           MP_ROM_INT(1),
+           MP_ROM_PTR(&version_string_obj),
+       },
+   };
+
+The first member defines the base type of the object, the second is the
+number of elements of the tuple that we want to define, and the third is
+itself a structure, listing the tuple elements. The key point here is
+that we can apply the address-of operator to ``version_tuple_obj``, and
+pass it to the ``MP_ROM_PTR`` macro.
+
+https://github.com/v923z/micropython-usermod/tree/master/snippets/constants/constants.c
 
 .. code:: cpp
         
     
     #include "py/obj.h"
-    #include "py/builtin.h"
     #include "py/runtime.h"
-    #include <stdlib.h>
+    #include "py/objstr.h"
+    #include "py/objtuple.h"
     
-    STATIC mp_obj_t mean_function(mp_obj_t error_code) {
-        int e = mp_obj_get_int(error_code);
-        if(e == 0) {
-            mp_raise_msg(&mp_type_ZeroDivisionError, "thou shall not try to divide by 0 on a microcontroller!");
-        } else if(e == 1) {
-            mp_raise_msg(&mp_type_IndexError, "dude, that was a silly mistake!");
-        } else if(e == 2) {
-            mp_raise_TypeError("look, chap, you can't be serious!");
-        } else if(e == 3) {
-            mp_raise_OSError(e);
-        } else if(e == 4) {
-            char *buffer;
-            buffer = malloc(100);
-            sprintf(buffer, "you are really out of luck today: error code %d", e);
-            mp_raise_NotImplementedError(buffer);
-        } else {
-            mp_raise_ValueError("sorry, you've exhausted all your options");
-        }
-        return mp_const_false;
-    }
+    #define MAGIC_CONSTANT 42
+    STATIC const MP_DEFINE_STR_OBJ(version_string_obj, "1.2.3");
     
-    STATIC MP_DEFINE_CONST_FUN_OBJ_1(mean_function_obj, mean_function);
-    
-    STATIC const mp_rom_map_elem_t sillyerrors_module_globals_table[] = {
-        { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_sillyerrors) },
-        { MP_ROM_QSTR(MP_QSTR_mean), MP_ROM_PTR(&mean_function_obj) },
+    const mp_rom_obj_tuple_t version_tuple_obj = {
+        {&mp_type_tuple},
+        2,
+        {
+            MP_ROM_INT(1),
+            MP_ROM_PTR(&version_string_obj),
+        },
     };
-    STATIC MP_DEFINE_CONST_DICT(sillyerrors_module_globals, sillyerrors_module_globals_table);
     
-    const mp_obj_module_t sillyerrors_user_cmodule = {
+    STATIC const mp_rom_map_elem_t constants_module_globals_table[] = {
+        { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_constants) },
+        { MP_ROM_QSTR(MP_QSTR___version__), MP_ROM_PTR(&version_string_obj) },
+        { MP_ROM_QSTR(MP_QSTR_magic), MP_ROM_INT(MAGIC_CONSTANT) },
+        { MP_ROM_QSTR(MP_QSTR_version_tuple), MP_ROM_PTR(&version_tuple_obj) },    
+    };
+    STATIC MP_DEFINE_CONST_DICT(constants_module_globals, constants_module_globals_table);
+    
+    const mp_obj_module_t constants_user_cmodule = {
         .base = { &mp_type_module },
-        .globals = (mp_obj_dict_t*)&sillyerrors_module_globals,
+        .globals = (mp_obj_dict_t*)&constants_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_sillyerrors, sillyerrors_user_cmodule, MODULE_SILLYERRORS_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_constants, constants_user_cmodule, MODULE_CONSTANTS_ENABLED);
 
-Now, not all exceptions are created equal. Some are more exceptional
-than the others: ``ValueError``, ``TypeError``, ``OSError``, and
-``NotImplementedError`` can be raised with the syntax
-
-.. code:: c
-
-   mp_raise_ValueError("wrong value");
-
-which will, in addition to raising the exception at the C level (i.e.,
-interrupting the execution of the code), also return a pretty traceback:
-
-::
-
-   Traceback (most recent call last):
-     File "<stdin>", line 1, in <module>
-   ValueError: wrong value
-
-with the error message that we supplied to the ``mp_raise_ValueError``
-function. If you want to have a traceback message that is not a
-compile-time constant, you could deal with the problem as in case 4 in
-the function ``mean_function``. Such a message might be useful, if the
-nature of the exception is somehow related to a quantity that is not
-known at compile time, e.g., if you have a function that should not ever
-run, if the up-time is shorter than some predefined value. Of course,
-one can just say that the “microcontroller hasn’t run long enough yet”,
-and this is a pretty good constant string, but perhaps we can give the
-user a bit more information, if we can also indicate, how much time is
-still missing.
-
-Other exceptions can be raised as in the ``e == 1`` case, with the
-``mp_raise_msg(&mp_type_IndexError, "dude, that was a silly mistake!")``
-function. Here one also has to specify the type of the exception, which
-is always of the form ``mp_type_``. A complete list can be found in
-``obj.h``.
-
-Incidentally, ``mp_raise_ValueError``, ``mp_raise_TypeError``, and
-``mp_raise_NotImplementedError`` are nothing but a wrapper for
-``mp_raise_msg``, which in turn is a wrapper for ``nlr_raise`` of
-``nlr.c/nlr.h``. The ``OSError`` is somewhat curious in this respect,
-because it is raised directly through ``nlr_raise``, and its argument is
-not a string, but an integer error code. All these wrappers are defined
-in ``runtime.c``, by the way.
-
-In our ultimate mean function, we raised a lot of exceptions by now, but
-we still have to return some value, because the function signature
-stipulates that, and the compiler would be unsatisfied otherwise, even
-though code execution will actually never reach the return statement.
-Since we are in denial mode anyway, I cast my vote for a return value of
-``mp_const_false``. ``mp_const_none`` was the other candidate, but ended
-up as the runner-up.
-
-I think, it is high time to compile our code.
-
-https://github.com/v923z/micropython-usermod/tree/master/snippets/sillyerrors/micropython.mk
+https://github.com/v923z/micropython-usermod/tree/master/snippets/constants/micropython.mk
 
 .. code:: make
         
@@ -124,113 +144,32 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sillyerrors/mi
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/sillyerrors.c
+    SRC_USERMOD += $(USERMODULES_DIR)/constants.c
     
-    # We can add our module folder to include paths if needed
-    # This is not actually needed in this example.
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SILLYERRORS_ENABLED=1 all
-.. code ::
-        
-    %%micropython
-    
-    import sillyerrors
-    print(sillyerrors.mean(0))
-.. parsed-literal::
-
-    
-    Traceback (most recent call last):
-      File "/dev/shm/micropython.py", line 3, in <module>
-    ZeroDivisionError: thou shall not try to divide by 0 on a microcontroller!
-    
+    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_CONSTANTS_ENABLED=1 all
+One comment before trying out what we have just implemented: the module
+is definitely pathological. If all you need is a set of constants
+organised in some way, then you should write it in python. There is
+nothing to be gained by working to C, while python is much more
+flexible.
 
 .. code ::
         
-    %%micropython
+    %%micropython -unix 1
     
-    import sillyerrors
-    print(sillyerrors.mean(1))
+    import constants
+    
+    print(constants.magic)
+    print(constants.__version__)
+    print(constants.version_tuple)
 .. parsed-literal::
 
+    42
+    1.2.3
+    (1, '1.2.3')
     
-    Traceback (most recent call last):
-      File "/dev/shm/micropython.py", line 3, in <module>
-    IndexError: dude, that was a silly mistake!
     
-
-.. code ::
-        
-    %%micropython
-    
-    import sillyerrors
-    print(sillyerrors.mean(2))
-.. parsed-literal::
-
-    
-    Traceback (most recent call last):
-      File "/dev/shm/micropython.py", line 3, in <module>
-    TypeError: look, chap, you can't be serious!
-    
-
-.. code ::
-        
-    %%micropython
-    
-    import sillyerrors
-    print(sillyerrors.mean(3))
-.. parsed-literal::
-
-    
-    Traceback (most recent call last):
-      File "/dev/shm/micropython.py", line 3, in <module>
-    OSError: 3
-    
-
-.. code ::
-        
-    %%micropython
-    
-    import sillyerrors
-    print(sillyerrors.mean(4))
-.. parsed-literal::
-
-    
-    Traceback (most recent call last):
-      File "/dev/shm/micropython.py", line 3, in <module>
-    NotImplementedError: you are really out of luck today: error code 4
-    
-
-One can’t but wonder, why we had to invoke our ``mean`` function in four
-separate statements, and why we couldn’t execute everything in a nice
-nifty package like
-
-.. code ::
-        
-    %%micropython
-    
-    import sillyerrors
-    print(sillyerrors.mean(0))
-    print(sillyerrors.mean(1))
-    print(sillyerrors.mean(2))
-    print(sillyerrors.mean(3))
-    print(sillyerrors.mean(4))
-.. parsed-literal::
-
-    
-    Traceback (most recent call last):
-      File "/dev/shm/micropython.py", line 3, in <module>
-    ZeroDivisionError: you shall not try to divide by 0 on a microcontroller!
-    
-
-Well, we could have, but since we specifically raised an exception in
-the first statement, our code would never have gotten beyond
-
-.. code:: python
-
-   sillyerror.mean(0)
-
-After all, this is what exceptions do: they interrupt the execution of
-the code.

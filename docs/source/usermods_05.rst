@@ -198,8 +198,6 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simplefunction
     # Add all C files to SRC_USERMOD.
     SRC_USERMOD += $(USERMODULES_DIR)/simplefunction.c
     
-    # We can add our module folder to include paths if needed
-    # This is not actually needed in this example.
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 If ``mpconfigport.h`` is augmented with
 
@@ -212,14 +210,14 @@ you should be able to compile the module above by calling
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets/ all
+    !make USER_C_MODULES=../../../usermod/snippets all
 As mentioned earlier, if you do not want to touch anything in the
 micropython code base, you can simply pass the definition to make as
 
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets/ CFLAGS_EXTRA=-DMODULE_SIMPLEFUNCTION_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_SIMPLEFUNCTION_ENABLED=1 all
 You will also note that we ran ``make clean`` before the compilation.
 This is always good practice, when you are developing your own modules.
 
