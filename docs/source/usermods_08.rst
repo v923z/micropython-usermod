@@ -1,5 +1,5 @@
-Parsing arguments
-=================
+Argument parsing
+================
 
 In practically all cases, you will have to inspect the arguments of your
 function. Even if you can resort to functions in the micropython
