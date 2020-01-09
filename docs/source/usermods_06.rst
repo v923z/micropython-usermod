@@ -154,7 +154,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/constants/micr
 One comment before trying out what we have just implemented: the module
 is definitely pathological. If all you need is a set of constants
 organised in some way, then you should write it in python. There is
-nothing to be gained by working to C, while python is much more
+nothing to be gained by working in C, while python is much more
 flexible.
 
 .. code ::
