@@ -6,7 +6,7 @@ function. Even if you can resort to functions in the micropython
 implementation, that simply means that the burden of inspection was
 taken off your shoulders, but not that the inspection does not happen at
 all. In this section, we are going to see what we can do with both
-position, and keyword arguments, and how we can retrieve their values.
+positional, and keyword arguments, and how we can retrieve their values.
 
 Positional arguments
 --------------------
