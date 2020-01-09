@@ -334,7 +334,7 @@ The last member, ``mp_arg_val_t`` is
        mp_rom_obj_t u_rom_obj;
    } mp_arg_val_t;
 
-Keyword arguments come in three flavours: ``MP_ARG_BOOL``\ ’,
+Keyword arguments come in three flavours: ``MP_ARG_BOOL``,
 ``MP_ARG_INT``, and ``MP_ARG_OBJ``.
 
 Keyword arguments with numerical values
