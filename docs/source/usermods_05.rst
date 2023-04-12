@@ -119,14 +119,14 @@ table to the ``_module_globals`` variable by applying the
 entry, the name of the module, which is going to be stored in the string
 ``MP_QSTR___name__``.
 
-These ``MP_QSRT_`` items are the C representation of the python strings
-that come at the end of them. So, ``MP_QSRT_foo_bar`` in C will be
+These ``MP_QSTR_`` items are the C representation of the python strings
+that come at the end of them. So, ``MP_QSTR_foo_bar`` in C will be
 turned into a name, ``foo_bar``, in python. ``foo_bar`` can be a
 constant, a function, a class, a type, etc., and depending on what is
 associated with it, different things will happen on the console, when
 ``foo_bar`` is invoked. But the crucial point is that, if you want
 ``foo_bar`` to have any meaning in python, then somewhere in your C
-code, you have to define ``MP_QSRT_foo_bar``.
+code, you have to define ``MP_QSTR_foo_bar``.
 
 The second key-value pair of the table is the pointer to the function
 that we have just implemented, and the name that we want to call the
