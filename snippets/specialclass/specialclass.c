@@ -73,15 +73,16 @@ STATIC mp_obj_t specialclass_binary_op(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t
     }
 }
 
-const mp_obj_type_t specialclass_myclass_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_specialclass,
-    .print = myclass_print,
-    .make_new = myclass_make_new,
-    .unary_op = specialclass_unary_op, 
-    .binary_op = specialclass_binary_op,
-    .locals_dict = (mp_obj_dict_t*)&myclass_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    specialclass_myclass_type,
+    MP_QSTR_specialclass,
+    MP_TYPE_FLAG_NONE,
+    print, myclass_print,
+    make_new, myclass_make_new,
+    unary_op, specialclass_unary_op,
+    binary_op, specialclass_binary_op,
+    locals_dict, myclass_locals_dict
+);
 
 STATIC const mp_map_elem_t specialclass_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_specialclass) },
@@ -98,4 +99,4 @@ const mp_obj_module_t specialclass_user_cmodule = {
     .globals = (mp_obj_dict_t*)&mp_module_specialclass_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_specialclass, specialclass_user_cmodule, MODULE_SPECIALCLASS_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_specialclass, specialclass_user_cmodule);

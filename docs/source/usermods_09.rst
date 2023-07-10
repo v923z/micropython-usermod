@@ -10,25 +10,32 @@ and a local dictionary. A typical class structure would look like
 
 .. code:: c
 
+   const mp_obj_type_t simpleclass_type;
+
    STATIC const mp_rom_map_elem_t simpleclass_locals_dict_table[] = {
        { MP_ROM_QSTR(MP_QSTR_method1), MP_ROM_PTR(&simpleclass_method1_obj) },
        { MP_ROM_QSTR(MP_QSTR_method2), MP_ROM_PTR(&simpleclass_method2_obj) },
        ...                                                           
    }
 
-   const mp_obj_type_t simpleclass_type = {
-       { &mp_type_type },
-       .name = MP_QSTR_simpleclass,
-       .print = simpleclass_print,
-       .make_new = simpleclass_make_new,
-       .locals_dict = (mp_obj_dict_t*)&simpleclass_locals_dict,
-   };
+   MP_DEFINE_CONST_OBJ_TYPE(
+        simpleclass_type,
+        MP_QSTR_simpleclass,
+        MP_TYPE_FLAG_NONE,
+        print, simpleclass_print,
+        make_new, simpleclass_make_new,
+        locals_dict, &simpleclass_locals_dict
+    );
 
-The locals dictionary, ``.locals_dict``, contains all user-facing
-methods and constants of the class, while the ``simpleclass_type``
-structure’s ``name`` member is what our class is going to be called.
-``.print`` is roughly the equivalent of ``__str__``, and ``.make_new``
-is the C name for ``__init__``.
+
+The ``MP_DEFINE_CONST_OBJ_TYPE`` macro defines a structure called
+``simpleclass_type``, which is of type ``mp_obj_type_t``. The structure
+contains a pointer to the type of the object, ``&mp_type_type``, the
+name of the class, ``MP_QSTR_simpleclass``, the flags, which are set to
+``MP_TYPE_FLAG_NONE``, the printout and initialisation functions,
+``print`` and ``make_new`` which are roughly the equivalent of ``__str__`` 
+and ``__init__``, and the local dictionary, ``locals_dict`` that contains
+all user-facing methods and constants of the class.
 
 In order to see how this all works, we are going to implement a very
 simple class, which holds two integer variables, and has a method that
@@ -132,13 +139,14 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simpleclass/si
     
     STATIC MP_DEFINE_CONST_DICT(myclass_locals_dict, myclass_locals_dict_table);
     
-    const mp_obj_type_t simpleclass_myclass_type = {
-        { &mp_type_type },
-        .name = MP_QSTR_simpleclass,
-        .print = myclass_print,
-        .make_new = myclass_make_new,
-        .locals_dict = (mp_obj_dict_t*)&myclass_locals_dict,
-    };
+    MP_DEFINE_CONST_OBJ_TYPE(
+        simpleclass_myclass_type,
+        MP_QSTR_simpleclass,
+        MP_TYPE_FLAG_NONE,
+        print, myclass_print,
+        make_new, myclass_make_new,
+        locals_dict, &myclass_locals_dict
+    );
     
     // Module functions
     STATIC mp_obj_t simpleclass_add(const mp_obj_t o_in) {
@@ -164,7 +172,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simpleclass/si
         .globals = (mp_obj_dict_t*)&mp_module_simpleclass_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_simpleclass, simpleclass_user_cmodule, MODULE_SIMPLECLASS_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_simpleclass, simpleclass_user_cmodule);
 
 One more thing to note: the functions that are pointed to in
 ``simpleclass_myclass_type`` are not registered with the macro
@@ -183,10 +191,10 @@ so, again, there is no need to turn our function into a function object.
 Printing class properties
 -------------------------
 
-In ``my_print``, instead of the standard the C function ``printf``, we
+In ``myclass_print``, instead of the standard the C function ``printf``, we
 made use of ``mp_print_str``, and ``mp_obj_print_helper``, which are
 options in this case. Both take ``print`` as their first argument. The
-value of ``print`` is supplied by the ``.print`` method of the class
+value of ``print`` is supplied by the ``print`` method of the class
 itself. The second argument is a string (in the case of
 ``mp_print_str``), or a ``micropython`` object (for
 ``mp_obj_print_helper``). In addition, ``mp_obj_print_helper`` takes a
@@ -205,13 +213,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simpleclass/mi
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/simpleclass.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/simpleclass.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_SIMPLECLASS_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/simpleclass
 .. code ::
         
     %%micropython
@@ -370,12 +378,12 @@ function, ``myclass_make_new``, immediately after the argument checking.
 
 When implementing the operators, we have to keep a couple of things in
 mind. First, the ``specialclass_myclass_type`` has to be extended with
-the two methods, ``.unary_op``, and ``.binary_op``, where ``.unary_op``
-is equal to the function that handles the unary operation
-(``specialclass_unary_op`` in the example below), and ``.binary_op`` is
-equal to the function that deals with binary operations
-(``specialclass_binary_op`` below). These two functions have the
-signatures
+the two pairs, ``unary_op``, and ``binary_op``, and their callback 
+functions. Where ``unary_op``'s callback is the function that handles 
+the unary operation (``specialclass_unary_op`` in the example below), 
+and ``binary_op``'s callback is the function that deals with binary 
+operations (``specialclass_binary_op`` below). These two functions have 
+the signatures
 
 .. code:: c
 
@@ -390,7 +398,7 @@ and
 respectively, and we have to inspect the value of ``op`` in the
 implementation. This is done in the two ``switch`` statements.
 
-Second, if ``.unary_op``, or ``.binary_op`` are defined for the class,
+Second, if ``unary_op``, or ``binary_op`` are defined for the class,
 then the handler function must have an implementation of all possible
 operators. This doesn’t necessarily mean that you have to have all cases
 in the ``switch``, but if you haven’t, then there must be a ``default``
@@ -468,15 +476,16 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/specialclass/s
         }
     }
     
-    const mp_obj_type_t specialclass_myclass_type = {
-        { &mp_type_type },
-        .name = MP_QSTR_specialclass,
-        .print = myclass_print,
-        .make_new = myclass_make_new,
-        .unary_op = specialclass_unary_op, 
-        .binary_op = specialclass_binary_op,
-        .locals_dict = (mp_obj_dict_t*)&myclass_locals_dict,
-    };
+    MP_DEFINE_CONST_OBJ_TYPE(
+        specialclass_myclass_type,
+        MP_QSTR_specialclass,
+        MP_TYPE_FLAG_NONE,
+        print, myclass_print,
+        make_new, myclass_make_new,
+        unary_op, specialclass_unary_op,
+        binary_op, specialclass_binary_op,
+        locals_dict, myclass_locals_dict
+    );
     
     STATIC const mp_map_elem_t specialclass_globals_table[] = {
         { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_specialclass) },
@@ -493,7 +502,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/specialclass/s
         .globals = (mp_obj_dict_t*)&mp_module_specialclass_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_specialclass, specialclass_user_cmodule, MODULE_SPECIALCLASS_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_specialclass, specialclass_user_cmodule);
 
 https://github.com/v923z/micropython-usermod/tree/master/snippets/specialclass/micropython.mk
 
@@ -503,13 +512,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/specialclass/m
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/specialclass.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/specialclass.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_SPECIALCLASS_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/specialclass
 .. code ::
         
     %%micropython
@@ -655,9 +664,12 @@ We are now done, right? Not quite: while the required functions are
 implemented, they will never be called. We have to attach them to the
 class, so that the interpreter knows what is to do, when we try to
 access ``c.x``. This act of attaching the function happens in the type
-definition of the class: we equate the ``.attr`` member of the structure
-with our ``propertyclass_attr`` functions, so that the interpreter can
-fill in the three arguments.
+definition of the class: we add a new pair to our type definition. By 
+adding ``atty`` and its callback function which is ``propertyclass_attr``
+the interpreter can fill in the three arguments. The first argument is
+the class instance, the second argument is the name of the property, and
+the third argument is the return value of the function that is going to
+be called, when querying for the property.
 
 And with that, we are ready to compile the code.
 
@@ -704,13 +716,14 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/pro
         }
     }
     
-    const mp_obj_type_t propertyclass_type = {
-        { &mp_type_type },
-        .name = MP_QSTR_propertyclass,
-        .make_new = propertyclass_make_new,
-        .attr = propertyclass_attr,
-        .locals_dict = (mp_obj_dict_t*)&propertyclass_locals_dict,
-    };
+    MP_DEFINE_CONST_OBJ_TYPE(
+        propertyclass_type,
+        MP_QSTR_propertyclass,
+        MP_TYPE_FLAG_NONE,
+        make_new, propertyclass_make_new,
+        attr, propertyclass_attr,
+        locals_dict, propertyclass_locals_dict,
+    );
     
     STATIC const mp_map_elem_t propertyclass_globals_table[] = {
         { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_propertyclass) },
@@ -727,12 +740,12 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/pro
         .globals = (mp_obj_dict_t*)&mp_module_propertyclass_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_propertyclass, propertyclass_user_cmodule, MODULE_PROPERTYCLASS_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_propertyclass, propertyclass_user_cmodule);
 
 Before we compile the module, I would like to add two comments to what
 was said above.
 
-First, in the function that we assigned to ``.attr``,
+First, in the function that made paired with ``attr``,
 
 .. code:: c
 
@@ -764,7 +777,7 @@ in place.
 
 Second, more examples on implementing properties can be found in
 `py/profile.c <https://github.com/micropython/micropython/blob/master/py/profile.c>`__.
-Just look for the ``.attr`` string, and the associated functions!
+Just look for the ``attr`` string, and the associated functions!
 
 https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/micropython.mk
 
@@ -774,13 +787,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/properties/mic
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/properties.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/properties.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_PROPERTYCLASS_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/properties
 .. code ::
         
     %%micropython 
