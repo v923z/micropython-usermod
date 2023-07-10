@@ -30,4 +30,4 @@ const mp_obj_module_t simplefunction_user_cmodule = {
     .globals = (mp_obj_dict_t*)&simplefunction_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_simplefunction, simplefunction_user_cmodule, MODULE_SIMPLEFUNCTION_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_simplefunction, simplefunction_user_cmodule);

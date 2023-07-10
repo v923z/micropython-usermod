@@ -61,7 +61,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sillyerrors/si
         .globals = (mp_obj_dict_t*)&sillyerrors_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_sillyerrors, sillyerrors_user_cmodule, MODULE_SILLYERRORS_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_sillyerrors, sillyerrors_user_cmodule);
 
 Now, not all exceptions are created equal. Some are more exceptional
 than the others: ``ValueError``, ``TypeError``, ``OSError``, and
@@ -124,13 +124,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/sillyerrors/mi
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/sillyerrors.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/sillyerrors.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_SILLYERRORS_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/sillyerrors
 .. code ::
         
     %%micropython

@@ -134,7 +134,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/constants/cons
         .globals = (mp_obj_dict_t*)&constants_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_constants, constants_user_cmodule, MODULE_CONSTANTS_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_constants, constants_user_cmodule);
 
 https://github.com/v923z/micropython-usermod/tree/master/snippets/constants/micropython.mk
 
@@ -144,13 +144,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/constants/micr
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/constants.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/constants.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_CONSTANTS_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/constants
 One comment before trying out what we have just implemented: the module
 is definitely pathological. If all you need is a set of constants
 organised in some way, then you should write it in python. There is
