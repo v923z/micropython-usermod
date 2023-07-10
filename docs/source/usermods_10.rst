@@ -38,12 +38,13 @@ where the structure
 
 .. code:: c
 
-   const mp_obj_type_t vector_type = {
-       { &mp_type_type },
-       .name = MP_QSTR_vector,
-       .print = vector_print,
-       .make_new = vector_make_new,
-   };
+   MP_DEFINE_CONST_OBJ_TYPE(
+        vector_type,
+        MP_QSTR_vector,
+        MP_TYPE_FLAG_NONE,
+        print, vector_print,
+        make_new, vector_make_new
+   );
 
 takes centre stage. Does this look familiar? This structure contains the
 new type’s name (a string, ``vector``), how it presents itself to users
@@ -109,12 +110,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vector/vector.
         return MP_OBJ_FROM_PTR(vector);
     }
     
-    const mp_obj_type_t vector_type = {
-        { &mp_type_type },
-        .name = MP_QSTR_vector,
-        .print = vector_print,
-        .make_new = vector_make_new,
-    };
+    MP_DEFINE_CONST_OBJ_TYPE(
+        vector_type,
+        MP_QSTR_vector,
+        MP_TYPE_FLAG_NONE,
+        print, vector_print,
+        make_new, vector_make_new
+    );
     
     STATIC const mp_rom_map_elem_t vector_module_globals_table[] = {
         { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_vector) },
@@ -128,7 +130,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vector/vector.
         .globals = (mp_obj_dict_t*)&vector_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_vector, vector_user_cmodule, MODULE_VECTOR_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_vector, vector_user_cmodule);
 
 https://github.com/v923z/micropython-usermod/tree/master/snippets/vector/micropython.mk
 
@@ -138,13 +140,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vector/micropy
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/vector.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/vector.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_VECTOR_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/vector
 .. code ::
         
     %%micropython

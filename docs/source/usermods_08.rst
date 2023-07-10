@@ -119,7 +119,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vararg/vararg.
         .globals = (mp_obj_dict_t*)&vararg_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_vararg, vararg_user_cmodule, MODULE_VARARG_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_vararg, vararg_user_cmodule);
 
 https://github.com/v923z/micropython-usermod/tree/master/snippets/vararg/micropython.mk
 
@@ -129,13 +129,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/vararg/micropy
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/vararg.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/vararg.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_VARARG_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/vararg
 .. code ::
         
     %%micropython
@@ -228,7 +228,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/stringarg/stri
         .globals = (mp_obj_dict_t*)&stringarg_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_stringarg, stringarg_user_cmodule, MODULE_STRINGARG_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_stringarg, stringarg_user_cmodule);
 
 The macro defined in ``objstr.h`` takes three arguments, out of which
 only the first one is actually defined. The other two are defined in the
@@ -271,13 +271,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/stringarg/micr
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/stringarg.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/stringarg.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_STRINGARG_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/stringarg
 .. code ::
         
     %%micropython
@@ -380,7 +380,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/keywordfunctio
         .globals = (mp_obj_dict_t*)&keywordfunction_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_keywordfunction, keywordfunction_user_cmodule, MODULE_KEYWORDFUNCTION_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_keywordfunction, keywordfunction_user_cmodule);
 
 One side effect of a function with keyword arguments is that we do not
 have to care about the arguments in the C implementation: the argument
@@ -432,13 +432,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/keywordfunctio
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/keywordfunction.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/keywordfunction.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_KEYWORDFUNCTION_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/keywordfunction
 .. code ::
         
     %%micropython
@@ -542,7 +542,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/arbitrarykeywo
         .globals = (mp_obj_dict_t*)&arbitrarykeyword_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_arbitrarykeyword, arbitrarykeyword_user_cmodule, MODULE_ARBITRARYKEYWORD_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_arbitrarykeyword, arbitrarykeyword_user_cmodule);
 
 Before compiling the code, let us think a bit about what is going on
 here. The first argument, ``a``, is straightforward: that is a
@@ -606,13 +606,13 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/arbitrarykeywo
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/arbitrarykeyword.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/arbitrarykeyword.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_ARBITRARYKEYWORD_ENABLED=1 all
+    !make USER_C_MODULES=../../../usermod/snippets/arbitrarykeyword
 .. code ::
         
     %%micropython

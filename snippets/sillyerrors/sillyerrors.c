@@ -47,4 +47,4 @@ const mp_obj_module_t sillyerrors_user_cmodule = {
     .globals = (mp_obj_dict_t*)&sillyerrors_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_sillyerrors, sillyerrors_user_cmodule, MODULE_SILLYERRORS_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_sillyerrors, sillyerrors_user_cmodule);

@@ -53,12 +53,13 @@ STATIC mp_obj_t vector_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     return MP_OBJ_FROM_PTR(vector);
 }
 
-const mp_obj_type_t vector_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_vector,
-    .print = vector_print,
-    .make_new = vector_make_new,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    vector_type,
+    MP_QSTR_vector,
+    MP_TYPE_FLAG_NONE,
+    print, vector_print,
+    make_new, vector_make_new
+);
 
 STATIC const mp_rom_map_elem_t vector_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_vector) },
@@ -72,4 +73,4 @@ const mp_obj_module_t vector_user_cmodule = {
     .globals = (mp_obj_dict_t*)&vector_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_vector, vector_user_cmodule, MODULE_VECTOR_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_vector, vector_user_cmodule);

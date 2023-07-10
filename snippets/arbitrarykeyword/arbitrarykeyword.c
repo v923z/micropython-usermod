@@ -66,4 +66,4 @@ const mp_obj_module_t arbitrarykeyword_user_cmodule = {
     .globals = (mp_obj_dict_t*)&arbitrarykeyword_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_arbitrarykeyword, arbitrarykeyword_user_cmodule, MODULE_ARBITRARYKEYWORD_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_arbitrarykeyword, arbitrarykeyword_user_cmodule);

@@ -9,7 +9,7 @@ as the current working directory.
     !cd ../../micropython/ports/unix/
 .. parsed-literal::
 
-    /home/v923z/sandbox/micropython/v1.11/micropython/ports/unix
+    /home/v923z/sandbox/micropython/v1.20.0/micropython/ports/unix
 
 The micropython codebase itself is set up a rather modular way. Provided
 you cloned the micropython repository with
@@ -40,44 +40,16 @@ these two directories, and perusing the relevant files therein.
 User modules in micropython
 ---------------------------
 
-Beginning with the 1.10 version of micropython, it became quite simple
+Beginning with the 1.20.0 version of micropython, it became quite simple
 to add a user-defined C module to the firmware. You simply drop two or
 three files in an arbitrary directory, and pass two compiler flags to
 ``make`` like so:
 
 .. code:: bash
 
-    !make USER_C_MODULES=../../../user_modules CFLAGS_EXTRA=-DMODULE_EXAMPLE_ENABLED=1 all
+    !make USER_C_MODULES=../../../user_modules
 Here, the ``USER_C_MODULES`` variable is the location (relative to the
-location of ``make``) of your files, while ``CFLAGS_EXTRA`` defines the
-flag for your particular module. This is relevant, if you have many
-modules, but you want to include only some of them.
-
-Alternatively, you can set the module flags in ``mpconfigport.h`` (to be
-found in the port’s root folder, for which you are compiling) as
-
-.. code:: make
-
-   #define MODULE_SIMPLEFUNCTION_ENABLED (1)
-   #define MODULE_SIMPLECLASS_ENABLED (1)
-   #define MODULE_SPECIALCLASS_ENABLED (1)
-   #define MODULE_KEYWORDFUNCTION_ENABLED (1)
-   #define MODULE_CONSUMEITERABLE_ENABLED (1)
-   #define MODULE_VECTOR_ENABLED (1)
-   #define MODULE_RETURNITERABLE_ENABLED (1)
-   #define MODULE_PROFILING_ENABLED (1)
-   #define MODULE_MAKEITERABLE_ENABLED (1)
-   #define MODULE_SUBSCRIPTITERABLE_ENABLED (1)
-   #define MODULE_SLICEITERABLE_ENABLED (1)
-   #define MODULE_VARARG_ENABLED (1)
-   #define MODULE_STRINGARG_ENABLED (1)
-
-and then call ``make`` without the ``CFLAGS_EXTRA`` flag:
-
-.. code:: bash
-
-    !make USER_C_MODULES=../../../user_modules all
-This separation of the user code from the micropython code base is
+location of ``make``) of your files. This separation of the user code from the micropython code base is
 definitely a convenience, because it is much easier to keep track of
 changes, and also because you can’t possibly screw up micropython
 itself: you can also go back to a working piece of firmware by dropping

@@ -37,4 +37,4 @@ const mp_obj_module_t vararg_user_cmodule = {
     .globals = (mp_obj_dict_t*)&vararg_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_vararg, vararg_user_cmodule, MODULE_VARARG_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_vararg, vararg_user_cmodule);

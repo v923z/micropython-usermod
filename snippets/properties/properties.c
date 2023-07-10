@@ -46,13 +46,14 @@ STATIC void propertyclass_attr(mp_obj_t self_in, qstr attribute, mp_obj_t *desti
     }
 }
 
-const mp_obj_type_t propertyclass_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_propertyclass,
-    .make_new = propertyclass_make_new,
-    .attr = propertyclass_attr,
-    .locals_dict = (mp_obj_dict_t*)&propertyclass_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    propertyclass_type,
+    MP_QSTR_propertyclass,
+    MP_TYPE_FLAG_NONE,
+    make_new, propertyclass_make_new,
+    attr, propertyclass_attr,
+    locals_dict, propertyclass_locals_dict,
+);
 
 STATIC const mp_map_elem_t propertyclass_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_propertyclass) },
@@ -69,4 +70,4 @@ const mp_obj_module_t propertyclass_user_cmodule = {
     .globals = (mp_obj_dict_t*)&mp_module_propertyclass_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_propertyclass, propertyclass_user_cmodule, MODULE_PROPERTYCLASS_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_propertyclass, propertyclass_user_cmodule);

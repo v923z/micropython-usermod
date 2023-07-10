@@ -40,4 +40,4 @@ const mp_obj_module_t stringarg_user_cmodule = {
     .globals = (mp_obj_dict_t*)&stringarg_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_stringarg, stringarg_user_cmodule, MODULE_STRINGARG_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_stringarg, stringarg_user_cmodule);

@@ -100,6 +100,21 @@ called on objects with this new type, i.e.,
 
 will just work. We return to this question later.
 
+An alternative way to check the type of a variable is to use the
+``mp_obj_get_type_str`` and use ``strcmp`` to compare the result with.
+``strcmp`` is a C function that compares two strings, and returns 0, if
+they are equal. So, if we want to check, whether ``some_variable`` is a
+integer, we could write:
+
+.. code:: c
+
+   if (strcmp(mp_obj_get_type_str(some_variable), "int") == 0) {
+       // do something
+   }
+
+This is not the most elegant way to do it, but it is useful, if you
+don't know the type of the variable at compile time.
+
 python constants
 ----------------
 

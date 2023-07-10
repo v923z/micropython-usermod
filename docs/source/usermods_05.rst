@@ -39,7 +39,7 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simplefunction
         .globals = (mp_obj_dict_t*)&simplefunction_module_globals,
     };
     
-    MP_REGISTER_MODULE(MP_QSTR_simplefunction, simplefunction_user_cmodule, MODULE_SIMPLEFUNCTION_ENABLED);
+    MP_REGISTER_MODULE(MP_QSTR_simplefunction, simplefunction_user_cmodule);
 
 Header files
 ------------
@@ -160,26 +160,12 @@ module with
 
 .. code:: c
 
-   MP_REGISTER_MODULE(MP_QSTR_simplefunction, simplefunction_user_cmodule, MODULE_SIMPLEFUNCTION_ENABLED);
+   MP_REGISTER_MODULE(MP_QSTR_simplefunction, simplefunction_user_cmodule);
 
-This last line is particularly useful, because by setting the
-``MODULE_SIMPLEFUNCTION_ENABLED`` variable in ``mpconfigport.h``, you
-can selectively exclude modules from the linking, i.e., if in
-``mpconfigport.h``, which should be in the root directory of the port
-you want to compile for,
+This is the function that is called by the interpreter, when the module
+is imported. It takes two arguments, the name of the module, and the
+module’s globals table, which we have just defined.
 
-.. code:: c
-
-   #define MODULE_SIMPLEFUNCTION_ENABLED (1)
-
-then ``simplefunction`` will be included in the firmware, while with
-
-.. code:: c
-
-   #define MODULE_SIMPLEFUNCTION_ENABLED (0)
-
-the module will be dropped, even though the source is in your modules
-folder. (N.B.: the module will still be compiled, but not linked.)
 
 Compiling our module
 --------------------
@@ -196,30 +182,22 @@ https://github.com/v923z/micropython-usermod/tree/master/snippets/simplefunction
     USERMODULES_DIR := $(USERMOD_DIR)
     
     # Add all C files to SRC_USERMOD.
-    SRC_USERMOD += $(USERMODULES_DIR)/simplefunction.c
+    SRC_USERMOD_C += $(USERMODULES_DIR)/simplefunction.c
     
     CFLAGS_USERMOD += -I$(USERMODULES_DIR)
-If ``mpconfigport.h`` is augmented with
 
-.. code:: make
-
-   #define MODULE_SIMPLEFUNCTION_ENABLED (1)
 
 you should be able to compile the module above by calling
 
 .. code:: bash
 
     !make clean
-    !make USER_C_MODULES=../../../usermod/snippets all
+    !make USER_C_MODULES=../../../usermod/snippets/simplefunction
 As mentioned earlier, if you do not want to touch anything in the
 micropython code base, you can simply pass the definition to make as
-
-.. code:: bash
-
-    !make clean
-    !make USER_C_MODULES=../../../usermod/snippets CFLAGS_EXTRA=-DMODULE_SIMPLEFUNCTION_ENABLED=1 all
-You will also note that we ran ``make clean`` before the compilation.
-This is always good practice, when you are developing your own modules.
+shown above. You will also note that we ran ``make clean`` before the
+compilation. This is always good practice, when you are developing 
+your own modules.
 
 We can then test the module as
 

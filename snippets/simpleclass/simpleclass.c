@@ -53,13 +53,14 @@ STATIC const mp_rom_map_elem_t myclass_locals_dict_table[] = {
 
 STATIC MP_DEFINE_CONST_DICT(myclass_locals_dict, myclass_locals_dict_table);
 
-const mp_obj_type_t simpleclass_myclass_type = {
-    { &mp_type_type },
-    .name = MP_QSTR_simpleclass,
-    .print = myclass_print,
-    .make_new = myclass_make_new,
-    .locals_dict = (mp_obj_dict_t*)&myclass_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    simpleclass_myclass_type,
+    MP_QSTR_simpleclass,
+    MP_TYPE_FLAG_NONE,
+    print, myclass_print,
+    make_new, myclass_make_new,
+    locals_dict, &myclass_locals_dict
+);
 
 // Module functions
 STATIC mp_obj_t simpleclass_add(const mp_obj_t o_in) {
@@ -85,4 +86,4 @@ const mp_obj_module_t simpleclass_user_cmodule = {
     .globals = (mp_obj_dict_t*)&mp_module_simpleclass_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_simpleclass, simpleclass_user_cmodule, MODULE_SIMPLECLASS_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_simpleclass, simpleclass_user_cmodule);

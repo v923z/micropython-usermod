@@ -41,4 +41,4 @@ const mp_obj_module_t keywordfunction_user_cmodule = {
     .globals = (mp_obj_dict_t*)&keywordfunction_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_keywordfunction, keywordfunction_user_cmodule, MODULE_KEYWORDFUNCTION_ENABLED);
+MP_REGISTER_MODULE(MP_QSTR_keywordfunction, keywordfunction_user_cmodule);
